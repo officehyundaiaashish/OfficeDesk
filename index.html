@@ -2196,13 +2196,8 @@ function pwaSaveData() {
   pwaReadHistRows();
   const fields = {};
   PWA_FIELD_IDS.forEach(id => { const el = document.getElementById(id); if (el) fields[id] = el.value; });
-  const photos = {
-    veh:  pwaVehPhotos.map(p  => p ? {b64: p.b64,  name: p.name}  : null),
-    part: pwaPartPhotos.map(p => p ? {b64: p.b64, name: p.name} : null)
-  };
   try {
     localStorage.setItem(PWA_SAVE_KEY, JSON.stringify({fields, partRows: pwaPartRows, labRows: pwaLabRows, histRows: pwaHistRows}));
-    try { localStorage.setItem(PWA_SAVE_KEY + '_photos', JSON.stringify(photos)); } catch(e) {}
     pwaSetStatus('Saved ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
   } catch(e) {}
 }
@@ -2216,21 +2211,13 @@ function pwwRestoreData() {
     if (data.partRows?.length) pwaPartRows = data.partRows;
     if (data.labRows?.length)  pwaLabRows  = data.labRows;
     if (data.histRows?.length) pwaHistRows = data.histRows;
-    // Restore photos
-    try {
-      const rawP = localStorage.getItem(PWA_SAVE_KEY + '_photos');
-      if (rawP) {
-        const photos = JSON.parse(rawP);
-        if (photos.veh)  photos.veh.forEach((p,i)  => { if (p) pwaVehPhotos[i]  = p; });
-        if (photos.part) photos.part.forEach((p,i) => { if (p) pwaPartPhotos[i] = p; });
-      }
-    } catch(e) {}
+    // Photos are intentionally NOT saved or restored from browser storage
     return true;
   } catch(e) { return false; }
 }
 
 function pwaClearSaved() {
-  try { localStorage.removeItem(PWA_SAVE_KEY); localStorage.removeItem(PWA_SAVE_KEY + '_photos'); } catch(e) {}
+  try { localStorage.removeItem(PWA_SAVE_KEY); } catch(e) {}
   pwaSetStatus('Cleared');
   setTimeout(() => pwaSetStatus(''), 2000);
   toast('Saved data cleared', 'info');
@@ -2286,12 +2273,10 @@ async function pwaExport() {
     const TBDR = () => ({top:T(),bottom:T(),left:T(),right:T()});
 
     // ── Sheet 1: PARTS REQUIRED-ESTIMATE ────────────────────────────
-    // Original col widths: A=7.28, B=53.28, C=49.85, D=16.13, E=15.28, F=31.7, G=12.85, H=11.56
     const ws1 = wb.addWorksheet('PARTS REQUIRED-ESTIMATE');
-    ws1.columns = [
-      {width:7.28},{width:53.28},{width:49.85},{width:16.13},
-      {width:15.28},{width:31.7},{width:12.85},{width:11.56}
-    ];
+    // Set column widths safely via getColumn
+    [[1,7.28],[2,53.28],[3,49.85],[4,16.13],[5,15.28],[6,31.7],[7,12.85],[8,11.56]]
+      .forEach(([c,w]) => { ws1.getColumn(c).width = w; });
 
     // Row 2: ESTIMATE title — original: black fill, white bold Arial 20, B2 with thin border
     ws1.getRow(2).height = 26.25;
@@ -2445,11 +2430,9 @@ async function pwaExport() {
     gtf.alignment = {horizontal:'center', vertical:'center'};
 
     // ── Sheet 2: SERVICE HISTORY ──────────────────────────────────────
-    // Original col widths: A=19.7, B=6.7, C=34.71, D=13.14, E=11.13
     const ws2 = wb.addWorksheet('SERVICE HISTORY');
-    ws2.columns = [
-      {width:19.7},{width:6.7},{width:34.71},{width:13.14},{width:11.13}
-    ];
+    [[1,19.7],[2,6.7],[3,34.71],[4,13.14],[5,11.13]]
+      .forEach(([c,w]) => { ws2.getColumn(c).width = w; });
 
     // Row 1: Title "ANNEXURE TO PRIOR WORK APPROVAL" A1:C1, yellow fill, Arial 16 bold
     ws2.getRow(1).height = 24;
@@ -2528,25 +2511,24 @@ async function pwaExport() {
     // ── Sheet 3: INVESTIGATION REPORT ─────────────────────────────────
     // Original col widths: A=9.56, B=9.14, C=23.99, D=9.14, E-F=default, G=26.42, H=11.42, I=9.14, J-K=default, L=17.85, M=11.56
     const ws3 = wb.addWorksheet('Investigation Report');
-    ws3.columns = [
-      {width:9.56},{width:9.14},{width:23.99},{width:9.14},
-      {width:9.14},{width:9.14},{width:26.42},{width:11.42},
-      {width:9.14},{width:9.14},{width:9.14},{width:17.85},{width:11.56}
-    ];
+    [[1,9.56],[2,9.14],[3,23.99],[4,9.14],[5,9.14],[6,9.14],[7,26.42],
+     [8,11.42],[9,9.14],[10,9.14],[11,9.14],[12,17.85],[13,11.56]]
+      .forEach(([c,w]) => { ws3.getColumn(c).width = w; });
 
     // Helper: set cell text (Hyundai Sans Head Office font, size 9 by default)
-    const sc = (addr, val, opts={}) => {
+    const sc = (addr, val, opts) => {
+      const o = opts || {};
       const cell = ws3.getCell(addr);
       cell.value = val;
       cell.font  = {
-        name: opts.font || OFONT,
-        size: opts.size || 9,
-        bold: opts.bold || false,
-        color: {argb: opts.color || 'FF000000'}
+        name: (typeof o.fontName === 'string' ? o.fontName : OFONT),
+        size: (typeof o.size === 'number' ? o.size : 9),
+        bold: o.bold === true,
+        color: {argb: (typeof o.color === 'string' ? o.color : 'FF000000')}
       };
-      if (opts.align) cell.alignment = opts.align;
-      if (opts.fill) cell.fill = {type:'pattern', pattern:'solid', fgColor:{argb: opts.fill}};
-      if (opts.border) cell.border = opts.border;
+      if (o.align) cell.alignment = o.align;
+      if (typeof o.fill === 'string') cell.fill = {type:'pattern', pattern:'solid', fgColor:{argb: o.fill}};
+      if (o.border) cell.border = o.border;
       return cell;
     };
 
@@ -2590,8 +2572,8 @@ async function pwaExport() {
 
     // Row 7: Fuel Type, Engine Number, Delivery Date
     sc('A7','Fuel Type',{size:9});
-    sc('C7',g('pwa-fuel'),{bold:true,size:9,font:AFONT,color:'FF808080'});
-    sc('E7','Engine Number',{font:AFONT,size:9,color:'FF808080'});
+    sc('C7',g('pwa-fuel'),{bold:true,size:9,fontName:AFONT,color:'FF808080'});
+    sc('E7','Engine Number',{fontName:AFONT,size:9,color:'FF808080'});
     sc('G7',g('pwa-engno'),{bold:true,size:9});
     sc('J7','Delivery Date',{size:9});
     const ddCell = ws3.getCell('L7');
@@ -2789,7 +2771,7 @@ async function pwaExport() {
 
     // ── Sheet 4: PARTS PHOTOGRAPH ──────────────────────────────────────
     const ws4 = wb.addWorksheet('PARTS PHOTOGRAPH');
-    ws4.columns = Array(25).fill(null).map(() => ({width:10}));
+    for (let c = 1; c <= 25; c++) { ws4.getColumn(c).width = 10; }
 
     // Row 1 headers — same as original: A1:L1 "Vehicle Details", N1:Y1 "Parts Photos"
     ws4.getRow(1).height = 16.5;
