@@ -58,7 +58,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .field{display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:12px;font-weight:500;color:var(--text2);}
 .field label .req{color:var(--accent);margin-left:2px;}
-input[type=text],input[type=number],select,textarea{font-family:var(--font);font-size:13.5px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;outline:none;transition:all var(--tr);width:100%;}
+input[type=text],input[type=number],input[type=date],input[type=tel],select,textarea{font-family:var(--font);font-size:13.5px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;outline:none;transition:all var(--tr);width:100%;}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-s);}
 input::placeholder,textarea::placeholder{color:var(--text3);}
 textarea{resize:vertical;min-height:80px;line-height:1.6;}
@@ -549,7 +549,7 @@ function initKcForm(){
   });
 }
 
-// Excel export — SheetJS CE with manual cell-by-cell styling via direct XML injection
+// Excel export — ExcelJS (full styling support: borders, fill, alignment)
 async function exportKeyCode(){
   kcReadRows();
   const validRows = kcRows.filter(r=>r.vin.trim());
@@ -562,10 +562,11 @@ async function exportKeyCode(){
   showLoader(true);
 
   try{
-    if(typeof XLSX==='undefined'){
+    // Load ExcelJS — full styling support
+    if(typeof ExcelJS==='undefined'){
       await new Promise((res,rej)=>{
         const s=document.createElement('script');
-        s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
         s.onload=res; s.onerror=rej;
         document.head.appendChild(s);
       });
@@ -577,55 +578,61 @@ async function exportKeyCode(){
 
     const HEADERS=["S. No.","Date","Dealer Code","Dealer Name","Model","VIN","Mileage","Ro No.","Requester Name","Requester Contact No.","TPSM Name","Key Pin Code or Key Number"];
     const WIDTHS=[6,12,13,28,22,21,10,14,17,22,14,26];
-    const COLS='ABCDEFGHIJKL'.split('');
 
-    const wb=XLSX.utils.book_new();
-    const ws={};
+    const wb = new ExcelJS.Workbook();
+    const sheetName=(dcode||'KeyCode').substring(0,31);
+    const ws = wb.addWorksheet(sheetName);
 
-    // Header row styling — green bg, white bold, center
-    const hStyle={patternType:'solid',fgColor:{rgb:'00A550'}};
-    HEADERS.forEach((h,i)=>{
-      const addr=COLS[i]+'1';
-      ws[addr]={v:h,t:'s'};
-      ws[addr].s={
-        font:{bold:true,sz:11,color:{rgb:'FFFFFF'}},
-        fill:hStyle,
-        alignment:{horizontal:'center',vertical:'center',wrapText:true},
-        border:{top:{style:'thin',color:{rgb:'AAAAAA'}},bottom:{style:'thin',color:{rgb:'AAAAAA'}},left:{style:'thin',color:{rgb:'AAAAAA'}},right:{style:'thin',color:{rgb:'AAAAAA'}}}
+    // Column widths
+    ws.columns = WIDTHS.map((w,i)=>({header:'',key:'c'+i,width:w}));
+
+    // Header row
+    const hdrRow = ws.addRow(HEADERS);
+    hdrRow.height = 30;
+    hdrRow.eachCell(cell=>{
+      cell.font   = {bold:true, size:11, color:{argb:'FFFFFFFF'}};
+      cell.fill   = {type:'pattern', pattern:'solid', fgColor:{argb:'FF00A550'}};
+      cell.alignment = {horizontal:'center', vertical:'middle', wrapText:true};
+      cell.border = {
+        top:   {style:'thin', color:{argb:'FF888888'}},
+        bottom:{style:'thin', color:{argb:'FF888888'}},
+        left:  {style:'thin', color:{argb:'FF888888'}},
+        right: {style:'thin', color:{argb:'FF888888'}}
       };
     });
 
     // Data rows
     validRows.forEach((row,ri)=>{
-      const excelRow = ri+2;
       const vals=[
         ri+1, date, dcode, dname,
         row.model, row.vin,
         row.mileage?parseInt(row.mileage):'',
         row.ro, rname, rcontact, tpsm, row.keycode
       ];
-      vals.forEach((val,ci)=>{
-        const addr=COLS[ci]+excelRow;
-        const t=typeof val==='number'?'n':'s';
-        ws[addr]={v:val,t:t};
-        ws[addr].s={
-          font:{sz:11},
-          alignment:{horizontal:'center',vertical:'center',wrapText:true},
-          border:{top:{style:'thin',color:{rgb:'DDDDDD'}},bottom:{style:'thin',color:{rgb:'DDDDDD'}},left:{style:'thin',color:{rgb:'DDDDDD'}},right:{style:'thin',color:{rgb:'DDDDDD'}}}
+      const dataRow = ws.addRow(vals);
+      dataRow.height = 20;
+      dataRow.eachCell({includeEmpty:true}, cell=>{
+        cell.font      = {size:11};
+        cell.alignment = {horizontal:'center', vertical:'middle', wrapText:true};
+        cell.border    = {
+          top:   {style:'thin', color:{argb:'FFCCCCCC'}},
+          bottom:{style:'thin', color:{argb:'FFCCCCCC'}},
+          left:  {style:'thin', color:{argb:'FFCCCCCC'}},
+          right: {style:'thin', color:{argb:'FFCCCCCC'}}
         };
       });
     });
 
-    const lastRow=validRows.length+1;
-    ws['!ref']=`A1:L${lastRow}`;
-    ws['!cols']=WIDTHS.map(w=>({wch:w}));
-    ws['!rows']=[{hpt:30},...Array(validRows.length).fill({hpt:22})];
-
-    const sheetName=(dcode||'KeyCode').substring(0,31);
-    XLSX.utils.book_append_sheet(wb,ws,sheetName);
-
-    const fname=`${dcode||'DEALER'}_KeyCode_${date||'export'}.xlsx`;
-    XLSX.writeFile(wb,fname);
+    // Generate and download
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const vinList = validRows.map(r=>r.vin).join(',');
+    a.download = `${vinList}_${dcode||'DEALER'}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
     toast(`Excel downloaded — ${validRows.length} vehicle(s)`,'ok');
   }catch(err){
     toast('Export error: '+err.message,'err');
