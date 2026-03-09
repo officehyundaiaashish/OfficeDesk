@@ -527,6 +527,10 @@ select:hover{
   <div class="hdr-sep"></div>
   <div class="breadcrumb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><b id="bc">Dashboard</b></div>
   <div class="hdr-right">
+    <button class="tbtn" onclick="fillTestData()" title="Fill test data (AGM + PWA)" style="width:auto;padding:0 10px;font-size:11px;font-weight:600;gap:5px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Fill Test
+    </button>
     <button class="tbtn" id="themeBtn" title="Toggle theme">
       <svg id="ico-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       <svg id="ico-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -1722,7 +1726,7 @@ async function agmExport(){
     titleRow.getCell(2).fill=HDR_FILL;
     titleRow.getCell(2).font={...HDR_FONT,size:13};
     titleRow.getCell(2).alignment=HDR_ALIGN;
-    ws1.mergeCells('B1:D1');
+    MC(ws1,'B1:D1');
     ws1.addRow([]);
     addBRow('Model',g('agm-model'));
     addBRow('Vin Number',g('agm-vin'));
@@ -1756,10 +1760,10 @@ async function agmExport(){
     const addPhotoHdr=(label,mergeFrom,mergeTo,row)=>{
       const c=ws2.getCell(`${mergeFrom}${row}`);
       c.value=label;c.font=HDR_FONT;c.fill=HDR_FILL;c.alignment=HDR_ALIGN;
-      ws2.mergeCells(`${mergeFrom}${row}:${mergeTo}${row}`);
+      MC(ws2,`${mergeFrom}${row}:${mergeTo}${row}`);
     };
     const titleP=ws2.getCell('B2');titleP.value='Battery Defective Concern';titleP.font=HDR_FONT;titleP.fill=HDR_FILL;titleP.alignment=HDR_ALIGN;
-    ws2.mergeCells('B2:M2');
+    MC(ws2,'B2:M2');
     ws2.getRow(2).height=24;
 
     // Row 1 photo headers
@@ -2271,6 +2275,8 @@ async function pwaExport() {
     // ── Thin border helper ──
     const T = (argb='FF000000') => ({style:'thin', color:{argb}});
     const TBDR = () => ({top:T(),bottom:T(),left:T(),right:T()});
+    // Safe merge — skips if cells already part of another merge
+    const MC = (ws, range) => { try { ws.mergeCells(range); } catch(e) { console.warn('mergeCells skip:', range, e.message); } };
 
     // ── Sheet 1: PARTS REQUIRED-ESTIMATE ────────────────────────────
     const ws1 = wb.addWorksheet('PARTS REQUIRED-ESTIMATE');
@@ -2280,7 +2286,7 @@ async function pwaExport() {
 
     // Row 2: ESTIMATE title — original: black fill, white bold Arial 20, B2 with thin border
     ws1.getRow(2).height = 26.25;
-    ws1.mergeCells('B2:H2');
+    MC(ws1,'B2:H2');
     const e_title = ws1.getCell('B2');
     e_title.value = 'ESTIMATE';
     e_title.font  = {name:AFONT, bold:true, size:20, color:{argb:'FFFFFFFF'}};
@@ -2298,7 +2304,7 @@ async function pwaExport() {
     // Rows 7-8: Table headers (merged vertically in original)
     // ITEMS=B, PART NUMBER=C, QTY=D, RATE=E, TOTAL=F
     ['B','C','D','E','F'].forEach(col => {
-      ws1.mergeCells(`${col}7:${col}8`);
+      MC(ws1,`${col}7:${col}8`);
     });
     const hdr7_vals = {B:'ITEMS', C:'PART NUMBER', D:'QTY', E:'RATE', F:'TOTAL'};
     ['B','C','D','E','F'].forEach(col => {
@@ -2341,7 +2347,7 @@ async function pwaExport() {
 
     // Row 15: TOTAL row — D15:E15 merged, F15 = sum
     ws1.getRow(15).height = 20.25;
-    ws1.mergeCells('D15:E15');
+    MC(ws1,'D15:E15');
     const ptc = ws1.getCell('D15');
     ptc.value = 'TOTAL';
     ptc.font  = {name:AFONT, bold:true, size:16};
@@ -2417,7 +2423,7 @@ async function pwaExport() {
     // G.TOTAL row — D:E merged with black fill white text, F = grand total same fill
     const gtRow = labEndRow + 1;
     ws1.getRow(gtRow).height = 20.25;
-    ws1.mergeCells(`D${gtRow}:E${gtRow}`);
+    MC(ws1,`D${gtRow}:E${gtRow}`);
     const gtc = ws1.getCell(`D${gtRow}`);
     gtc.value = 'G.TOTAL ';
     gtc.font  = {name:AFONT, bold:true, size:12, color:{argb:'FFFFFFFF'}};
@@ -2436,7 +2442,7 @@ async function pwaExport() {
 
     // Row 1: Title "ANNEXURE TO PRIOR WORK APPROVAL" A1:C1, yellow fill, Arial 16 bold
     ws2.getRow(1).height = 24;
-    ws2.mergeCells('A1:C1');
+    MC(ws2,'A1:C1');
     const sh_title = ws2.getCell('A1');
     sh_title.value = '       ANNEXURE TO PRIOR WORK APPROVAL   ';
     sh_title.font  = {name:AFONT, bold:true, size:16};
@@ -2445,7 +2451,7 @@ async function pwaExport() {
 
     // Row 2: blank merged A2:C2
     ws2.getRow(2).height = 18;
-    ws2.mergeCells('A2:C2');
+    MC(ws2,'A2:C2');
 
     // Rows 3-5: RO, Reg, VIN — A=label (Arial 11 bold black), B:C merged = value
     [
@@ -2455,7 +2461,7 @@ async function pwaExport() {
     ].forEach(([label, val], i) => {
       const rn = 3 + i;
       ws2.getRow(rn).height = 15;
-      ws2.mergeCells(`B${rn}:C${rn}`);
+      MC(ws2,`B${rn}:C${rn}`);
       const lc = ws2.getCell(`A${rn}`);
       lc.value = label;
       lc.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF000000'}};
@@ -2471,7 +2477,7 @@ async function pwaExport() {
 
     // Row 7: SERVICE DETAILS A7:C7, yellow fill Arial 14 bold
     ws2.getRow(7).height = 21;
-    ws2.mergeCells('A7:C7');
+    MC(ws2,'A7:C7');
     const sd_hdr = ws2.getCell('A7');
     sd_hdr.value = 'SERVICE DETAILS';
     sd_hdr.font  = {name:AFONT, bold:true, size:14};
@@ -2660,14 +2666,14 @@ async function pwaExport() {
 
     // Narrative sections — use original cell positions exactly
     // (1) D20 heading, D21 content — D:I merged
-    ws3.mergeCells('D20:I20');
+    MC(ws3,'D20:I20');
     const n1h = ws3.getCell('D20');
     n1h.value = '(1)  Introduction (Reason for Reporting)';
     n1h.font  = {name:OFONT, bold:true, size:9, color:{argb:'FF000000'}};
     n1h.alignment = {horizontal:'left', vertical:'center'};
     n1h.border = TBDR();
 
-    ws3.mergeCells('D21:I21');
+    MC(ws3,'D21:I21');
     const n1v = ws3.getCell('D21');
     n1v.value = g('pwa-intro');
     n1v.font  = {name:OFONT, size:9};
@@ -2675,22 +2681,22 @@ async function pwaExport() {
     n1v.border = TBDR();
 
     // (2) D22 heading — D:I merged
-    ws3.mergeCells('D22:I22');
+    MC(ws3,'D22:I22');
     const n2h = ws3.getCell('D22');
     n2h.value = '(2)  Detailed Symptom & condition';
     n2h.font  = {name:OFONT, bold:true, size:9};
     n2h.alignment = {horizontal:'center', vertical:'center', wrapText:false};
 
-    // Row 25 (large) — content for (2) Detailed Symptom
-    ws3.mergeCells('D23:I25');
+    // Rows 23-25 (large) — content for (2) Detailed Symptom
+    MC(ws3,'D23:I25');
     const n2v = ws3.getCell('D23');
     n2v.value = g('pwa-symptom');
     n2v.font  = {name:OFONT, size:9};
     n2v.alignment = {horizontal:'left', vertical:'top', wrapText:true};
     n2v.border = TBDR();
 
-    // (3) D26 heading  
-    ws3.mergeCells('D26:I26');
+    // (3) D26 heading
+    MC(ws3,'D26:I26');
     const n3h = ws3.getCell('D26');
     n3h.value = '(3)  Investigation Result & Possible Cause';
     n3h.font  = {name:OFONT, bold:true, size:9};
@@ -2698,7 +2704,7 @@ async function pwaExport() {
     n3h.border = TBDR();
 
     // Row 27 (large) — content for (3)
-    ws3.mergeCells('D27:I27');
+    MC(ws3,'D27:I27');
     const n3v = ws3.getCell('D27');
     n3v.value = g('pwa-investigation');
     n3v.font  = {name:OFONT, size:9, color:{argb:'FF333333'}};
@@ -2706,7 +2712,7 @@ async function pwaExport() {
     n3v.border = TBDR();
 
     // (3b) D31 — merged D31:K31 (Investigation result heading)
-    ws3.mergeCells('D31:K31');
+    MC(ws3,'D31:K31');
     const n3bh = ws3.getCell('D31');
     n3bh.value = '(3)  Investigation Result & Possible Cause';
     n3bh.font  = {name:OFONT, bold:true, size:9};
@@ -2714,7 +2720,7 @@ async function pwaExport() {
     n3bh.border = TBDR();
 
     // D32:K34 merged — content
-    ws3.mergeCells('D32:K34');
+    MC(ws3,'D32:K34');
     const n3bv = ws3.getCell('D32');
     n3bv.value = g('pwa-investigation');
     n3bv.font  = {name:OFONT, size:9, color:{argb:'FF333333'}};
@@ -2722,14 +2728,14 @@ async function pwaExport() {
     n3bv.border = TBDR();
 
     // (4) D36 heading, G36 content
-    ws3.mergeCells('D36:F36');
+    MC(ws3,'D36:F36');
     const n4h = ws3.getCell('D36');
     n4h.value = '(4)  Corrective action & Result';
     n4h.font  = {name:OFONT, bold:true, size:9};
     n4h.alignment = {horizontal:'left', vertical:'center'};
     n4h.border = TBDR();
 
-    ws3.mergeCells('G36:K36');
+    MC(ws3,'G36:K36');
     const n4v = ws3.getCell('G36');
     n4v.value = g('pwa-action');
     n4v.font  = {name:OFONT, size:9};
@@ -2737,14 +2743,14 @@ async function pwaExport() {
     n4v.border = TBDR();
 
     // (5) D40:E41 merged heading, F40:K41 merged content
-    ws3.mergeCells('D40:E41');
+    MC(ws3,'D40:E41');
     const n5h = ws3.getCell('D40');
     n5h.value = '(5) Comment:- ';
     n5h.font  = {name:OFONT, bold:true, size:9};
     n5h.alignment = {horizontal:'center', vertical:'center'};
     n5h.border = TBDR();
 
-    ws3.mergeCells('F40:K41');
+    MC(ws3,'F40:K41');
     const n5v = ws3.getCell('F40');
     n5v.value = g('pwa-comment');
     n5v.font  = {name:OFONT, size:9};
@@ -2775,14 +2781,14 @@ async function pwaExport() {
 
     // Row 1 headers — same as original: A1:L1 "Vehicle Details", N1:Y1 "Parts Photos"
     ws4.getRow(1).height = 16.5;
-    ws4.mergeCells('A1:L1');
+    MC(ws4,'A1:L1');
     const vdH = ws4.getCell('A1');
     vdH.value = 'Vehicle Details';
     vdH.font  = {name:'Calibri', bold:true, size:11, color:{argb:'FFFFFFFF'}};
     vdH.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
     vdH.alignment = {horizontal:'center', vertical:'bottom'};
 
-    ws4.mergeCells('N1:Y1');
+    MC(ws4,'N1:Y1');
     const ppH = ws4.getCell('N1');
     ppH.value = 'Parts Photos';
     ppH.font  = {name:'Calibri', bold:true, size:11, color:{argb:'FFFFFFFF'}};
@@ -2828,11 +2834,154 @@ async function pwaExport() {
 
   } catch(err) {
     toast('Export error: ' + err.message, 'err');
-    console.error(err);
+    console.error('PWA Export full error:', err);
+    console.error('Stack:', err.stack);
   } finally {
     showLoader(false);
     btn.disabled = false;
   }
+}
+
+/* ── TEST DATA FILL ────────────────────────────────────────────── */
+function fillTestData() {
+  // ── PWA Fields ──
+  const pwaData = {
+    'pwa-ro':           'R202600510',
+    'pwa-reg':          'UK08BC5400',
+    'pwa-vin':          'MALPC813LPM517824',
+    'pwa-model':        'Creta 1.5 CRDi MT SX',
+    'pwa-mileage':      '59234',
+    'pwa-date':         '2026-01-25',
+    'pwa-dcode':        'N3235',
+    'pwa-dname':        'Khanna Automart Pvt Ltd',
+    'pwa-fuel':         'Diesel',
+    'pwa-engno':        'D4FAPM878209',
+    'pwa-repairdate':   '2026-01-22',
+    'pwa-tmtype':       'Manual',
+    'pwa-tmno':         'TM12345',
+    'pwa-delivdate':    '2023-06-18',
+    'pwa-displacement': '1497cc',
+    'pwa-proddate':     '2023-05-10',
+    'pwa-vehcount':     '1',
+    'pwa-cpno':         '392652A910',
+    'pwa-cpname':       'PM SENSOR',
+    'pwa-supplier':     'HMIL',
+    'pwa-defpartno':    '392652A910',
+    'pwa-lotno':        'CFN',
+    'pwa-subcrop':      'N/A',
+    'pwa-mail':         'N',
+    'pwa-ew':           'N',
+    'pwa-poc':          'While driving normally',
+    'pwa-naturecode':   'Warning lamp on in cluster',
+    'pwa-causecode':    'PART MATERIAL DEFECT',
+    'pwa-occurrence':   'Continuous',
+    'pwa-timeperiod':   'ALL TIME',
+    'pwa-road':         'General Road',
+    'pwa-speed':        'Right after operating',
+    'pwa-dtc':          'P2452',
+    'pwa-subject':      'Warning lamp on in cluster.',
+    'pwa-intro':        'Warning lamp illuminated on instrument cluster while driving. Customer reported MIL ON condition. Vehicle brought in for inspection.',
+    'pwa-symptom':      'Particulate Matter (PM) sensor warning lamp illuminated continuously on the instrument cluster. No other abnormal symptoms observed. Vehicle drivability unaffected.',
+    'pwa-investigation':'Scanned vehicle with GDS tool. Found DTC P2452 - PM Sensor differential pressure circuit malfunction. Physical inspection of PM sensor confirmed defect. Sensor resistance out of spec. Root cause: defective PM sensor assembly from factory.',
+    'pwa-action':       'Replaced defective PM sensor assy (Part No. 392652A910) as per diagnosis. Cleared DTC and performed road test. Warning lamp did not reilluminate. Vehicle handed over to customer.',
+    'pwa-comment':      'PLEASE APPROVE.',
+    'pwa-sig-sm':       'NARENDRA KUMAR',
+    'pwa-sig-wm':       'AASHISH GIRI',
+    'pwa-sig-pm':       'MANOJ',
+    'pwa-sig-sa':       'TINKU'
+  };
+  Object.entries(pwaData).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.dispatchEvent(new Event('change'));
+  });
+
+  // PWA part rows
+  pwaPartRows = [
+    {partno:'392652A910', desc:'PM SENSOR ASSY', qty:1, rate:8500},
+    {partno:'3921500QAF', desc:'GASKET-EXHAUST', qty:1, rate:250}
+  ];
+  pwaBuildPartRows();
+
+  // PWA labour rows
+  pwaLabRows = [
+    {opcode:'39265R00', desc:'PM SENSOR REPLACEMENT', qty:1, labour:200},
+    {opcode:'39216R00', desc:'DIAGNOSIS CHARGES',     qty:1, labour:150}
+  ];
+  pwaBuildLabRows();
+
+  // PWA history rows
+  pwaHistRows = [
+    {date:'2026-01-22T10:27', kms:'59234', type:'Running Repair', current:true},
+    {date:'2025-10-30T11:57', kms:'52201', type:'Running Repair', current:false},
+    {date:'2025-09-09T16:48', kms:'48066', type:'Running Repair', current:false},
+    {date:'2025-06-16T12:42', kms:'43144', type:'Paid Service',   current:false},
+    {date:'2024-12-18T09:55', kms:'31798', type:'Paid Service',   current:false},
+    {date:'2024-07-03T11:03', kms:'21421', type:'Free Service',   current:false},
+    {date:'2023-12-13T10:30', kms:'10732', type:'Free Service',   current:false},
+    {date:'2023-07-18T11:56', kms:'1246',  type:'Free Service',   current:false}
+  ];
+  pwaBuildHistRows();
+  pwaCalcTotals();
+
+  // ── AGM Fields ──
+  const agmData = {
+    'agm-model':          'Creta 1.5 MPi MT SX',
+    'agm-vin':            'MALPA812LRM722020',
+    'agm-saledate':       '2024-02-14',
+    'agm-repairdate':     '2026-01-22',
+    'agm-mileage':        '22428',
+    'agm-batproddate':    '2023-11-08',
+    'agm-vehrecdate':     '2024-01-20',
+    'agm-pdi-date':       'NA',
+    'agm-pdi-volt':       '-',
+    'agm-pdi-cca':        '-',
+    'agm-pdi-soc':        '-',
+    'agm-ba-volt':        '6.84',
+    'agm-ba-cca':         '560',
+    'agm-ba-soc':         '100',
+    'agm-battavail':      'EXIDE',
+    'agm-pn1':            '37110G6520',
+    'agm-pd1':            'BATTERY ASSY',
+    'agm-pp1':            '5254.24',
+    'agm-pq1':            '1',
+    'agm-pa1':            '5254.24',
+    'agm-lc1':            '37110R00',
+    'agm-ld1':            'BATTERY',
+    'agm-lp1':            '75.6',
+    'agm-lq1':            '1',
+    'agm-la1':            '75.6',
+    'agm-nd-partcost':    '6200',
+    'agm-nd-hmilpct-p':   '1',
+    'agm-nd-dealerpct-p': '0',
+    'agm-nd-labcost':     '89.2',
+    'agm-nd-hmilpct-l':   '1',
+    'agm-nd-dealerpct-l': '0'
+  };
+  Object.entries(agmData).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.dispatchEvent(new Event('change'));
+  });
+  // AGM selects
+  const agmSelects = {
+    'agm-battspec':  '50',
+    'agm-supplier':  'Delkor',
+    'agm-ba-result': 'Defective Battery',
+    'agm-ba-slip':   'REPLACE BATTERY',
+    'agm-action':    'Replaced'
+  };
+  Object.entries(agmSelects).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.dispatchEvent(new Event('change'));
+  });
+
+  toast('Test data filled — AGM & PWA ready', 'ok');
+  switchView('pwa');
 }
 
 </script>
