@@ -124,32 +124,125 @@ body{
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;}
 .fg.c3{grid-template-columns:1fr 1fr 1fr;}
 .s2{grid-column:span 2;}.s3{grid-column:span 3;}
-.field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-size:12px;font-weight:500;color:var(--text2);}
-.field label .req{color:var(--accent);margin-left:2px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:11.5px;font-weight:600;color:var(--text2);letter-spacing:.1px;user-select:none;}
+.field label .req{color:var(--accent);margin-left:2px;font-size:12px;}
 
-/* ── FORM CONTROLS ─────────────────────────────────────────────────── */
+/* ── FORM CONTROLS — Modern Polished UI ────────────────────────────── */
 input[type=text],input[type=number],input[type=date],input[type=tel],select,textarea{
   font-family:var(--font);font-size:13.5px;color:var(--text);
-  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
-  padding:8px 11px;outline:none;width:100%;
-  /* Only transition the properties that actually change — prevents layout reflow */
-  transition:border-color var(--tr),background-color var(--tr);
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:9px 13px;
+  outline:none;
+  width:100%;
+  line-height:1.5;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+  transition:border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  -webkit-appearance:none;
+  appearance:none;
 }
-input:focus,select:focus,textarea:focus{
+input[type=text]:hover,input[type=number]:hover,input[type=date]:hover,
+input[type=tel]:hover,select:hover,textarea:hover{
+  border-color:var(--text3);
+  box-shadow:0 1px 4px rgba(0,0,0,.07);
+}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,
+input[type=tel]:focus,select:focus,textarea:focus{
   border-color:var(--accent);
   background:var(--surface);
-  /* Use outline instead of box-shadow — box-shadow paints outside element bounds */
-  outline:2px solid var(--accent-s);
-  outline-offset:0px;
+  box-shadow:0 0 0 3px var(--accent-s), 0 1px 3px rgba(0,0,0,.06);
+  outline:none;
 }
-input::placeholder,textarea::placeholder{color:var(--text3);}
-textarea{resize:vertical;min-height:80px;line-height:1.6;}
+/* Dark mode adjustments */
+[data-theme=dark] input[type=text],[data-theme=dark] input[type=number],
+[data-theme=dark] input[type=date],[data-theme=dark] input[type=tel],
+[data-theme=dark] select,[data-theme=dark] textarea{
+  background:var(--surface2);
+  box-shadow:0 1px 2px rgba(0,0,0,.15);
+}
+[data-theme=dark] input[type=text]:focus,[data-theme=dark] input[type=number]:focus,
+[data-theme=dark] input[type=date]:focus,[data-theme=dark] input[type=tel]:focus,
+[data-theme=dark] select:focus,[data-theme=dark] textarea:focus{
+  background:var(--surface);
+  box-shadow:0 0 0 3px var(--accent-s), 0 1px 4px rgba(0,0,0,.2);
+}
+input::placeholder,textarea::placeholder{
+  color:var(--text3);
+  font-size:13px;
+}
+textarea{
+  resize:vertical;
+  min-height:80px;
+  line-height:1.6;
+}
+
+/* ── SELECT — custom arrow + styled ────────────────────────────────── */
 select{
-  cursor:pointer;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9a97' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+  cursor:pointer;
+  padding-right:34px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236a6a67' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 11px center;
+  background-size:12px;
 }
+[data-theme=dark] select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888885' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+select option{
+  background:var(--surface);
+  color:var(--text);
+  padding:6px 10px;
+}
+
+/* ── DATE INPUT — calendar icon polish ──────────────────────────────── */
+input[type=date]{
+  color-scheme:light;
+  cursor:pointer;
+}
+[data-theme=dark] input[type=date]{
+  color-scheme:dark;
+}
+input[type=date]::-webkit-calendar-picker-indicator{
+  opacity:.45;
+  cursor:pointer;
+  filter:none;
+  width:14px;
+  height:14px;
+  padding:0;
+  margin-right:1px;
+  transition:opacity 140ms ease;
+}
+input[type=date]:hover::-webkit-calendar-picker-indicator,
+input[type=date]:focus::-webkit-calendar-picker-indicator{
+  opacity:.8;
+}
+[data-theme=dark] input[type=date]::-webkit-calendar-picker-indicator{
+  filter:invert(0.75);
+}
+
+/* ── INPUT WRAPPER with floating-style icon support ─────────────────── */
+.field.has-icon{position:relative;}
+.field.has-icon input,.field.has-icon select{padding-left:36px;}
+.field-icon{
+  position:absolute;left:11px;bottom:9px;
+  color:var(--text3);pointer-events:none;
+  transition:color 140ms ease;
+}
+.field.has-icon input:focus ~ .field-icon,
+.field.has-icon select:focus ~ .field-icon{color:var(--accent);}
+
+/* ── NUMBER INPUT — hide spinners ────────────────────────────────────── */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+
+/* ── TEXTAREA — scrollbar ────────────────────────────────────────────── */
+textarea::-webkit-scrollbar{width:4px;}
+textarea::-webkit-scrollbar-track{background:transparent;}
+textarea::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
 input[type=file]{display:none;}
 
 /* ── PHOTO GRID ────────────────────────────────────────────────────── */
@@ -352,6 +445,76 @@ input[type=file]{display:none;}
 @media(max-width:640px){
   .pwa-sig-grid{grid-template-columns:1fr 1fr;}
   .pwa-photos-grid{grid-template-columns:1fr;}
+}
+
+/* ── PWA FIELD ENHANCEMENTS ──────────────────────────────────────────── */
+/* Part/Labour rows — modern card style */
+#pwa-part-rows .vrow,
+#pwa-lab-rows .vrow,
+#pwa-hist-rows .vrow{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  position:relative;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+  transition:border-color 140ms ease, box-shadow 140ms ease;
+}
+#pwa-part-rows .vrow:hover,
+#pwa-lab-rows .vrow:hover,
+#pwa-hist-rows .vrow:hover{
+  border-color:var(--accent);
+  box-shadow:0 2px 8px rgba(0,44,95,.07);
+}
+
+/* Select — active accent arrow on focus */
+select:focus{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23002C5F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+}
+[data-theme=dark] select:focus{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234D8FD6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+}
+
+/* VIN / mono fields */
+input[style*="mono"]{
+  letter-spacing:.5px;
+  font-size:13px !important;
+}
+
+/* Readonly / disabled state */
+input:disabled, select:disabled, textarea:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  background:var(--surface2) !important;
+}
+
+/* Valid filled state — subtle green left border */
+input:not(:placeholder-shown):not(:focus)[type=text],
+input:not(:placeholder-shown):not(:focus)[type=number],
+input:not(:placeholder-shown):not(:focus)[type=tel]{
+  border-left-color:var(--accent);
+  border-left-width:2px;
+}
+
+/* Date input filled state */
+input[type=date]:valid:not(:focus){
+  border-left-color:var(--accent);
+  border-left-width:2px;
+}
+
+/* Textarea focus glow */
+textarea:focus{
+  box-shadow:0 0 0 3px var(--accent-s), 0 2px 6px rgba(0,0,0,.07);
+  min-height:96px;
+}
+
+/* Select hover arrow brightens */
+select:hover{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23181816' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+[data-theme=dark] select:hover{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23f0f0ee' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 </style>
 </head>
@@ -2101,7 +2264,6 @@ async function pwaExport() {
   btn.disabled = true;
 
   try {
-    // Load ExcelJS dynamically if needed
     if (typeof ExcelJS === 'undefined') {
       await new Promise((res, rej) => {
         const s = document.createElement('script');
@@ -2111,285 +2273,541 @@ async function pwaExport() {
       });
     }
 
-    // Read latest state
     pwaReadPartRows(); pwaReadLabRows(); pwaReadHistRows();
-
     const g  = id => document.getElementById(id)?.value.trim() || '';
     const wb = new ExcelJS.Workbook();
 
-    // Common styles
-    const HDR_FILL  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF002C5F'}};
-    const HDR_FONT  = {bold:true, size:11, color:{argb:'FFFFFFFF'}};
-    const HDR_ALIGN = {horizontal:'center', vertical:'middle', wrapText:true};
-    const THIN      = (c='FF888888') => ({style:'thin', color:{argb:c}});
-    const BDR       = (c='FF888888') => ({top:THIN(c), bottom:THIN(c), left:THIN(c), right:THIN(c)});
-    const DA        = {horizontal:'center', vertical:'middle', wrapText:true};
+    // ── Original font used in the XLS ──
+    const OFONT = 'Hyundai Sans Head Office';
+    const AFONT = 'Arial';
 
-    // ── Sheet 1: PARTS REQUIRED-ESTIMATE ──────────────────────────────
+    // ── Thin border helper ──
+    const T = (argb='FF000000') => ({style:'thin', color:{argb}});
+    const TBDR = () => ({top:T(),bottom:T(),left:T(),right:T()});
+
+    // ── Sheet 1: PARTS REQUIRED-ESTIMATE ────────────────────────────
+    // Original col widths: A=7.28, B=53.28, C=49.85, D=16.13, E=15.28, F=31.7, G=12.85, H=11.56
     const ws1 = wb.addWorksheet('PARTS REQUIRED-ESTIMATE');
-    ws1.columns = [{width:4},{width:4},{width:28},{width:18},{width:8},{width:14},{width:14}];
+    ws1.columns = [
+      {width:7.28},{width:53.28},{width:49.85},{width:16.13},
+      {width:15.28},{width:31.7},{width:12.85},{width:11.56}
+    ];
 
-    // Title
-    ws1.mergeCells('B2:G2');
-    const titleCell = ws1.getCell('B2');
-    titleCell.value = 'ESTIMATE';
-    titleCell.font  = {bold:true, size:14, color:{argb:'FF002C5F'}};
-    titleCell.alignment = {horizontal:'center', vertical:'middle'};
-    ws1.getRow(2).height = 28;
+    // Row 2: ESTIMATE title — original: black fill, white bold Arial 20, B2 with thin border
+    ws1.getRow(2).height = 26.25;
+    ws1.mergeCells('B2:H2');
+    const e_title = ws1.getCell('B2');
+    e_title.value = 'ESTIMATE';
+    e_title.font  = {name:AFONT, bold:true, size:20, color:{argb:'FFFFFFFF'}};
+    e_title.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    e_title.alignment = {horizontal:'center', vertical:'middle'};
+    e_title.border = TBDR();
+    ws1.getRow(2).height = 26.25;
 
-    // PARTS section header
-    ws1.mergeCells('B4:G4');
-    const sh1 = ws1.getCell('B4');
-    sh1.value = `RO: ${g('pwa-ro')}   |   VIN: ${vin}   |   Reg: ${g('pwa-reg')}`;
-    sh1.font  = {size:10, color:{argb:'FF555555'}};
-    sh1.alignment = {horizontal:'left', vertical:'middle'};
-    ws1.getRow(4).height = 18;
+    // Row 5: PARTS label — Arial 16 bold
+    ws1.getRow(5).height = 20.25;
+    const ps_lbl = ws1.getCell('B5');
+    ps_lbl.value = 'PARTS';
+    ps_lbl.font  = {name:AFONT, bold:true, size:16};
 
-    ws1.mergeCells('B5:C5');
-    const ps = ws1.getCell('B5');
-    ps.value = 'PARTS'; ps.font = {...HDR_FONT, size:12}; ps.fill = HDR_FILL;
-    ps.alignment = HDR_ALIGN; ws1.getRow(5).height = 22;
-
-    // Parts table header row
-    const pHdr = ws1.getRow(6);
-    ['ITEMS','PART NUMBER','QTY','RATE','TOTAL'].forEach((h,i) => {
-      const c = pHdr.getCell(3+i);
-      c.value = h; c.font = HDR_FONT; c.fill = HDR_FILL; c.alignment = HDR_ALIGN; c.border = BDR();
+    // Rows 7-8: Table headers (merged vertically in original)
+    // ITEMS=B, PART NUMBER=C, QTY=D, RATE=E, TOTAL=F
+    ['B','C','D','E','F'].forEach(col => {
+      ws1.mergeCells(`${col}7:${col}8`);
     });
-    pHdr.height = 22;
+    const hdr7_vals = {B:'ITEMS', C:'PART NUMBER', D:'QTY', E:'RATE', F:'TOTAL'};
+    ['B','C','D','E','F'].forEach(col => {
+      const cell = ws1.getCell(`${col}7`);
+      cell.value = hdr7_vals[col];
+      cell.font  = {name:AFONT, bold:true, size:16};
+      cell.alignment = {horizontal:'center', vertical:'center'};
+      cell.border = TBDR();
+    });
+    ws1.getRow(7).height = 20.25;
+    ws1.getRow(8).height = 20.25;
 
-    // Parts data rows
+    // Parts data rows — starting row 9
     let partsSum = 0;
     pwaPartRows.forEach((row, idx) => {
-      const total = (row.qty||1) * (row.rate||0);
+      const rn = 9 + idx;
+      ws1.getRow(rn).height = 20.25;
+      const total = (parseFloat(row.qty)||1) * (parseFloat(row.rate)||0);
       partsSum += total;
-      const dr = ws1.getRow(7 + idx);
-      [row.desc, row.partno, row.qty, row.rate, total].forEach((val, i) => {
-        const c = dr.getCell(3+i);
-        c.value = (i >= 2) ? (parseFloat(val)||0) : (val||'');
-        c.font = {size:11}; c.alignment = DA; c.border = BDR('FFDDDDDD');
+      const vals = {B: row.desc||'', C: row.partno||'', D: parseFloat(row.qty)||1, E: parseFloat(row.rate)||0, F: total};
+      ['B','C','D','E','F'].forEach(col => {
+        const cell = ws1.getCell(`${col}${rn}`);
+        cell.value = vals[col];
+        cell.font  = {name:AFONT, bold:true, size:16};
+        cell.alignment = {horizontal:'center', vertical:'center'};
+        cell.border = TBDR();
       });
-      dr.height = 18;
     });
 
-    // Parts total
-    const pTotalRow = ws1.getRow(7 + pwaPartRows.length + 1);
-    ws1.mergeCells(`D${pTotalRow.number}:E${pTotalRow.number}`);
-    const ptc = pTotalRow.getCell(4);
-    ptc.value = 'TOTAL'; ptc.font = {...HDR_FONT, color:{argb:'FF002C5F'}}; ptc.alignment = {horizontal:'right'};
-    pTotalRow.getCell(6).value = partsSum;
-    pTotalRow.getCell(6).font = {bold:true, size:12, color:{argb:'FF002C5F'}};
-    pTotalRow.getCell(6).alignment = DA;
-    pTotalRow.height = 22;
+    // Blank filler rows up to row 14 (original had data up to row 14)
+    for (let rn = 9 + pwaPartRows.length; rn <= 14; rn++) {
+      ws1.getRow(rn).height = 20.25;
+      ['B','C','D','E','F'].forEach(col => {
+        const cell = ws1.getCell(`${col}${rn}`);
+        cell.font  = {name:AFONT, bold:true, size:16};
+        cell.alignment = {horizontal:'center', vertical:'center'};
+        cell.border = TBDR();
+      });
+    }
 
-    // Labour section
-    const labStartRow = pTotalRow.number + 2;
-    ws1.mergeCells(`B${labStartRow}:C${labStartRow}`);
-    const ls = ws1.getCell(`B${labStartRow}`);
-    ls.value = 'LABOUR'; ls.font = {...HDR_FONT, size:12}; ls.fill = HDR_FILL;
-    ls.alignment = HDR_ALIGN; ws1.getRow(labStartRow).height = 22;
+    // Row 15: TOTAL row — D15:E15 merged, F15 = sum
+    ws1.getRow(15).height = 20.25;
+    ws1.mergeCells('D15:E15');
+    const ptc = ws1.getCell('D15');
+    ptc.value = 'TOTAL';
+    ptc.font  = {name:AFONT, bold:true, size:16};
+    ptc.alignment = {horizontal:'center', vertical:'center'};
+    ptc.border = TBDR();
+    ws1.getCell('E15').border = {top:T(),bottom:T(),right:T()};
+    ws1.getCell('F15').value = partsSum;
+    ws1.getCell('F15').font  = {name:AFONT, bold:true, size:16};
+    ws1.getCell('F15').alignment = {horizontal:'center', vertical:'center'};
+    ws1.getCell('F15').border = TBDR();
 
-    // Labour header
-    const lHdrRow = ws1.getRow(labStartRow + 1);
-    ['OP CODE','ITEMS','QTY','LABOUR','TOTAL'].forEach((h,i) => {
-      const c = lHdrRow.getCell(3+i);
-      c.value = h; c.font = HDR_FONT; c.fill = HDR_FILL; c.alignment = HDR_ALIGN; c.border = BDR();
+    // Row 17: Labour headers — OP CODE=B, ITEMS=C, (blank=D), LABOUR=E, (blank=F)
+    ws1.getRow(17).height = 20.25;
+    const lab17_vals = {B:'OP CODE', C:'ITEMS', E:'LABOUR'};
+    ['B','C','D','E','F'].forEach(col => {
+      const cell = ws1.getCell(`${col}17`);
+      cell.value = lab17_vals[col] || '';
+      cell.font  = {name:AFONT, bold:true, size:16};
+      cell.alignment = {horizontal:'center', vertical:'center'};
+      cell.border = TBDR();
     });
-    lHdrRow.height = 22;
 
-    // Labour data rows
+    // Labour data rows — starting row 18
     let labSum = 0;
     pwaLabRows.forEach((row, idx) => {
-      const total = (row.qty||1) * (row.labour||0);
+      const rn = 18 + idx;
+      ws1.getRow(rn).height = 18.2;
+      const total = (parseFloat(row.qty)||1) * (parseFloat(row.labour)||0);
       labSum += total;
-      const dr = ws1.getRow(labStartRow + 2 + idx);
-      [row.opcode, row.desc, row.qty, row.labour, total].forEach((val, i) => {
-        const c = dr.getCell(3+i);
-        c.value = (i >= 2) ? (parseFloat(val)||0) : (val||'');
-        c.font = {size:11}; c.alignment = DA; c.border = BDR('FFDDDDDD');
-      });
-      dr.height = 18;
+      // Original: B=opcode (size11 bold color #333333), C=desc (size16 bold yellow fill), D=qty, E=labour, F=total
+      const bc = ws1.getCell(`B${rn}`);
+      bc.value = row.opcode||'';
+      bc.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF333333'}};
+      bc.alignment = {horizontal:'center', vertical:'center'};
+      bc.border = TBDR();
+
+      const cc = ws1.getCell(`C${rn}`);
+      cc.value = row.desc||'';
+      cc.font  = {name:AFONT, bold:true, size:16};
+      cc.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}};
+      cc.alignment = {horizontal:'center', vertical:'center'};
+      cc.border = TBDR();
+
+      const dc = ws1.getCell(`D${rn}`);
+      dc.value = parseFloat(row.qty)||1;
+      dc.font  = {name:AFONT, bold:true, size:12};
+      dc.alignment = {horizontal:'center', vertical:'center'};
+      dc.border = TBDR();
+
+      const ec = ws1.getCell(`E${rn}`);
+      ec.value = parseFloat(row.labour)||0;
+      ec.font  = {name:AFONT, bold:true, size:12};
+      ec.alignment = {horizontal:'center', vertical:'center'};
+      ec.border = TBDR();
+
+      const fc = ws1.getCell(`F${rn}`);
+      fc.value = total;
+      fc.font  = {name:AFONT, bold:true, size:12};
+      fc.alignment = {horizontal:'center', vertical:'center'};
+      fc.border = TBDR();
     });
 
-    // Grand total
-    const gTotalRow = ws1.getRow(labStartRow + 2 + pwaLabRows.length + 1);
-    ws1.mergeCells(`D${gTotalRow.number}:E${gTotalRow.number}`);
-    const gtc = gTotalRow.getCell(4);
-    gtc.value = 'G.TOTAL'; gtc.font = {...HDR_FONT, color:{argb:'FF002C5F'}}; gtc.alignment = {horizontal:'right'};
-    gTotalRow.getCell(6).value = partsSum + labSum;
-    gTotalRow.getCell(6).font = {bold:true, size:14, color:{argb:'FF002C5F'}};
-    gTotalRow.getCell(6).alignment = DA;
-    gTotalRow.height = 26;
+    // Blank filler lab row
+    const labEndRow = 18 + Math.max(pwaLabRows.length, 1);
+    ws1.getRow(labEndRow).height = 18.2;
+    ['B','C','D','E','F'].forEach(col => {
+      const cell = ws1.getCell(`${col}${labEndRow}`);
+      cell.font  = {name:AFONT, size:12};
+      cell.alignment = {horizontal:'center', vertical:'center'};
+      cell.border = TBDR();
+    });
 
-    // ── Sheet 2: SERVICE HISTORY ───────────────────────────────────────
+    // G.TOTAL row — D:E merged with black fill white text, F = grand total same fill
+    const gtRow = labEndRow + 1;
+    ws1.getRow(gtRow).height = 20.25;
+    ws1.mergeCells(`D${gtRow}:E${gtRow}`);
+    const gtc = ws1.getCell(`D${gtRow}`);
+    gtc.value = 'G.TOTAL ';
+    gtc.font  = {name:AFONT, bold:true, size:12, color:{argb:'FFFFFFFF'}};
+    gtc.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    gtc.alignment = {horizontal:'center', vertical:'center'};
+    const gtf = ws1.getCell(`F${gtRow}`);
+    gtf.value = partsSum + labSum;
+    gtf.font  = {name:AFONT, bold:true, size:12, color:{argb:'FFFFFFFF'}};
+    gtf.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    gtf.alignment = {horizontal:'center', vertical:'center'};
+
+    // ── Sheet 2: SERVICE HISTORY ──────────────────────────────────────
+    // Original col widths: A=19.7, B=6.7, C=34.71, D=13.14, E=11.13
     const ws2 = wb.addWorksheet('SERVICE HISTORY');
-    ws2.columns = [{width:22},{width:10},{width:20},{width:12}];
+    ws2.columns = [
+      {width:19.7},{width:6.7},{width:34.71},{width:13.14},{width:11.13}
+    ];
 
+    // Row 1: Title "ANNEXURE TO PRIOR WORK APPROVAL" A1:C1, yellow fill, Arial 16 bold
+    ws2.getRow(1).height = 24;
     ws2.mergeCells('A1:C1');
-    const shTitle = ws2.getCell('A1');
-    shTitle.value = 'ANNEXURE TO PRIOR WORK APPROVAL';
-    shTitle.font  = {bold:true, size:13, color:{argb:'FFFFFFFF'}};
-    shTitle.fill  = HDR_FILL;
-    shTitle.alignment = HDR_ALIGN;
-    ws2.getRow(1).height = 28;
+    const sh_title = ws2.getCell('A1');
+    sh_title.value = '       ANNEXURE TO PRIOR WORK APPROVAL   ';
+    sh_title.font  = {name:AFONT, bold:true, size:16};
+    sh_title.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}};
+    sh_title.alignment = {horizontal:'center', vertical:'bottom'};
 
-    [['Repair Order No.', g('pwa-ro')], ['Reg. No.', g('pwa-reg')], ['VIN No.', vin]].forEach(([label, val], i) => {
-      const r = ws2.getRow(2 + i);
-      r.getCell(1).value = label; r.getCell(1).font = {bold:true, size:11};
-      ws2.mergeCells(`B${2+i}:C${2+i}`);
-      r.getCell(2).value = val; r.getCell(2).font = {size:11, color:{argb:'FF002C5F'}};
-      r.height = 18;
+    // Row 2: blank merged A2:C2
+    ws2.getRow(2).height = 18;
+    ws2.mergeCells('A2:C2');
+
+    // Rows 3-5: RO, Reg, VIN — A=label (Arial 11 bold black), B:C merged = value
+    [
+      ['Repair Order No.', g('pwa-ro')],
+      ['Reg. No.',          g('pwa-reg')],
+      ['VIN No.',           vin]
+    ].forEach(([label, val], i) => {
+      const rn = 3 + i;
+      ws2.getRow(rn).height = 15;
+      ws2.mergeCells(`B${rn}:C${rn}`);
+      const lc = ws2.getCell(`A${rn}`);
+      lc.value = label;
+      lc.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF000000'}};
+      lc.alignment = {horizontal:'center', vertical:'bottom'};
+      const vc = ws2.getCell(`B${rn}`);
+      vc.value = val;
+      vc.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF000000'}};
+      vc.alignment = {horizontal:'center', vertical:'bottom'};
     });
 
-    ws2.mergeCells('A6:C6');
-    const sdHdr = ws2.getCell('A6');
-    sdHdr.value = 'SERVICE DETAILS'; sdHdr.font = {...HDR_FONT, size:12};
-    sdHdr.fill = HDR_FILL; sdHdr.alignment = HDR_ALIGN;
-    ws2.getRow(6).height = 22;
+    // Row 6: blank
+    ws2.getRow(6).height = 15.75;
 
-    const sHdr = ws2.getRow(7);
-    ['Date','Kms.','Type of Job'].forEach((h,i) => {
-      const c = sHdr.getCell(i+1);
-      c.value = h; c.font = HDR_FONT; c.fill = HDR_FILL; c.alignment = HDR_ALIGN; c.border = BDR();
+    // Row 7: SERVICE DETAILS A7:C7, yellow fill Arial 14 bold
+    ws2.getRow(7).height = 21;
+    ws2.mergeCells('A7:C7');
+    const sd_hdr = ws2.getCell('A7');
+    sd_hdr.value = 'SERVICE DETAILS';
+    sd_hdr.font  = {name:AFONT, bold:true, size:14};
+    sd_hdr.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}};
+    sd_hdr.alignment = {horizontal:'center', vertical:'bottom'};
+
+    // Row 8: Column headers Date, Kms., Type of Job — Arial 11 bold black with borders
+    ws2.getRow(8).height = 15;
+    ['Date','Kms.','Type of Job'].forEach((h, i) => {
+      const cell = ws2.getCell(8, i+1);
+      cell.value = h;
+      cell.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF000000'}};
+      cell.alignment = {horizontal:'center', vertical:'center'};
+      cell.border = TBDR();
     });
-    sHdr.height = 20;
 
+    // Data rows — starting row 9
     pwaHistRows.forEach((row, idx) => {
-      const r = ws2.getRow(8 + idx);
-      r.getCell(1).value = row.date  || '';
-      r.getCell(2).value = row.kms   ? parseInt(row.kms) : '';
-      r.getCell(3).value = row.type  || '';
-      if (row.current) r.getCell(4).value = 'CURRENT';
-      [1,2,3,4].forEach(c => { r.getCell(c).font = {size:11}; r.getCell(c).alignment = {vertical:'middle'}; r.getCell(c).border = BDR('FFDDDDDD'); });
-      if (row.current) r.getCell(4).font = {bold:true, color:{argb:'FF002C5F'}, size:11};
-      r.height = 18;
+      const rn = 9 + idx;
+      ws2.getRow(rn).height = 15;
+      const dateVal = row.date ? new Date(row.date) : '';
+      ws2.getCell(`A${rn}`).value = dateVal;
+      if (dateVal) ws2.getCell(`A${rn}`).numFmt = 'dd-mmm-yy';
+      ws2.getCell(`B${rn}`).value = row.kms ? parseInt(row.kms) : '';
+      ws2.getCell(`C${rn}`).value = row.type || '';
+      if (row.current) ws2.getCell(`D${rn}`).value = 'CURRENT';
+      [1,2,3].forEach(c => {
+        const cell = ws2.getCell(rn, c);
+        cell.font  = {name:'Calibri', size:11, color:{argb:'FF000000'}};
+        cell.alignment = {horizontal:'center', vertical:'center'};
+      });
+      if (row.current) {
+        ws2.getCell(`D${rn}`).font = {name:'Calibri', size:11, color:{argb:'FF000000'}};
+      }
     });
 
     // ── Sheet 3: INVESTIGATION REPORT ─────────────────────────────────
+    // Original col widths: A=9.56, B=9.14, C=23.99, D=9.14, E-F=default, G=26.42, H=11.42, I=9.14, J-K=default, L=17.85, M=11.56
     const ws3 = wb.addWorksheet('Investigation Report');
-    ws3.columns = Array(13).fill(null).map(() => ({width:12}));
+    ws3.columns = [
+      {width:9.56},{width:9.14},{width:23.99},{width:9.14},
+      {width:9.14},{width:9.14},{width:26.42},{width:11.42},
+      {width:9.14},{width:9.14},{width:9.14},{width:17.85},{width:11.56}
+    ];
 
-    // Title
-    ws3.mergeCells('A1:M1');
-    const irT = ws3.getCell('A1');
-    irT.value = 'INVESTIGATION REPORT - MANDATORY FOR PWA';
-    irT.font  = {...HDR_FONT, size:13};
-    irT.fill  = HDR_FILL; irT.alignment = HDR_ALIGN;
-    ws3.getRow(1).height = 28;
-
-    // Helper: label-value pair
-    const irLV = (row, col, label, val, span=2) => {
-      const lc = ws3.getCell(row, col);
-      lc.value = label; lc.font = {bold:true, size:10};
-      if (span > 1) { try { ws3.mergeCells(row, col+1, row, col+span); } catch(e) {} }
-      const vc = ws3.getCell(row, col+1);
-      vc.value = val; vc.font = {size:10, color:{argb:'FF002C5F'}};
+    // Helper: set cell text (Hyundai Sans Head Office font, size 9 by default)
+    const sc = (addr, val, opts={}) => {
+      const cell = ws3.getCell(addr);
+      cell.value = val;
+      cell.font  = {
+        name: opts.font || OFONT,
+        size: opts.size || 9,
+        bold: opts.bold || false,
+        color: {argb: opts.color || 'FF000000'}
+      };
+      if (opts.align) cell.alignment = opts.align;
+      if (opts.fill) cell.fill = {type:'pattern', pattern:'solid', fgColor:{argb: opts.fill}};
+      if (opts.border) cell.border = opts.border;
+      return cell;
     };
 
-    // Dealer + Date row
-    ws3.getRow(3).height = 18;
-    irLV(3, 1, 'Dealer:-', `${g('pwa-dcode')} — ${g('pwa-dname')}`, 3);
-    irLV(3, 5, 'Date:', g('pwa-date'), 2);
+    // Row heights from original
+    const irRowH = {1:20.25,2:14.25,3:15.75,4:15.75,5:14.25,6:25.5,7:14.25,8:14.25,
+      9:14.25,10:14.25,11:15,12:14.25,13:14.25,14:14.25,15:14.25,16:14.25,17:14.25,
+      18:14.25,19:14.25,20:14.25,21:14.25,22:14.25,23:0.75,24:0.75,25:93,26:14.25,
+      27:104.25,28:1.5,29:106.5,30:14.25,31:14.25,32:14.25,33:14.25,34:14.25,
+      35:14.25,36:14.25,37:14.25,38:14.25,39:14.25,40:14.25,41:14.25,42:14.25,
+      43:14.25,44:14.25,45:15};
+    Object.entries(irRowH).forEach(([r,h]) => { ws3.getRow(parseInt(r)).height = h; });
 
-    // Vehicle info section header
-    ws3.mergeCells('A4:M4');
-    const viH = ws3.getCell('A4');
-    viH.value = 'Vehicle Information'; viH.font = {...HDR_FONT, size:11};
-    viH.fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF1A4B8C'}};
-    viH.alignment = HDR_ALIGN; ws3.getRow(4).height = 20;
+    // Row 1: Title
+    sc('A1','INVESTIGATION REPORT - MANDATORY FOR PWA',{bold:true,size:16});
 
-    irLV(5, 1, 'Model', g('pwa-model'), 1);
-    irLV(5, 5, 'VIN', vin, 2);
-    irLV(5, 10, 'Repair Date', g('pwa-repairdate'), 3);
-    irLV(6, 1, 'Fuel Type', g('pwa-fuel'), 1);
-    irLV(6, 5, 'Engine Number', g('pwa-engno'), 2);
-    irLV(6, 10, 'Delivery Date', g('pwa-delivdate'), 3);
-    irLV(7, 1, 'T/M Type', g('pwa-tmtype'), 1);
-    irLV(7, 5, 'T/M Number', g('pwa-tmno'), 2);
-    irLV(7, 10, 'Production Date', g('pwa-proddate'), 3);
-    irLV(8, 1, 'Displacement', g('pwa-displacement'), 1);
-    irLV(8, 5, 'Mileage', g('pwa-mileage'), 2);
-    irLV(8, 10, 'No. of Vehicle Affected', g('pwa-vehcount'), 3);
-    [5,6,7,8].forEach(r => ws3.getRow(r).height = 18);
+    // Row 3: Section label
+    sc('A3','Investigation Report',{bold:true,size:12});
 
-    // Part info section
-    ws3.mergeCells('A9:M9');
-    const piH = ws3.getCell('A9');
-    piH.value = 'Part Information'; piH.font = {...HDR_FONT, size:11};
-    piH.fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF1A4B8C'}};
-    piH.alignment = HDR_ALIGN; ws3.getRow(9).height = 20;
+    // Row 4: Dealer + Date
+    sc('A4','Dealer:-',{bold:true,size:9});
+    sc('C4',`${g('pwa-dcode')}`,{bold:true,size:12});
+    sc('E4','Date : ',{size:9});
+    const dateCell4 = ws3.getCell('G4');
+    dateCell4.value = g('pwa-date') ? new Date(g('pwa-date')) : '';
+    dateCell4.font  = {name:OFONT, size:9, bold:true, color:{argb:'FF000000'}};
+    if (g('pwa-date')) dateCell4.numFmt = 'dd-mmm-yy';
 
-    irLV(10, 1, 'Causal Part No', g('pwa-cpno'), 1);
-    irLV(10, 5, 'Part Name', g('pwa-cpname'), 2);
-    irLV(10, 10, 'Part Supplier', g('pwa-supplier'), 3);
-    irLV(11, 1, 'Defective Part', g('pwa-defpartno'), 1);
-    irLV(11, 10, 'Part Lot No', g('pwa-lotno'), 3);
-    irLV(12, 1, 'Subsidiary Crop', g('pwa-subcrop'), 3);
-    irLV(12, 10, 'Mail Y/N', g('pwa-mail'), 3);
-    irLV(13, 1, 'Problem Occurrence Condition', g('pwa-poc'), 3);
-    irLV(13, 10, 'EW', g('pwa-ew'), 3);
-    [10,11,12,13].forEach(r => ws3.getRow(r).height = 18);
+    // Row 5: Section label
+    sc('A5','Vehicle Information',{size:9});
 
-    // Problem details
-    ws3.mergeCells('A14:M14');
-    const pdH = ws3.getCell('A14');
-    pdH.value = 'Problem Details'; pdH.font = {...HDR_FONT, size:11};
-    pdH.fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF1A4B8C'}};
-    pdH.alignment = HDR_ALIGN; ws3.getRow(14).height = 20;
+    // Row 6: Model, VIN, Repair Date
+    sc('A6','Model',{size:9});
+    sc('C6',g('pwa-model'),{bold:true,size:10,align:{wrapText:true}});
+    sc('E6','VIN',{size:9});
+    sc('G6',vin,{bold:true,size:9});
+    sc('J6','Repair Date',{size:9});
+    const rdCell = ws3.getCell('L6');
+    rdCell.value = g('pwa-repairdate') ? new Date(g('pwa-repairdate')) : '';
+    rdCell.font  = {name:OFONT, size:9, bold:true};
+    if (g('pwa-repairdate')) rdCell.numFmt = 'dd-mmm-yy';
 
-    irLV(15, 1, 'Nature Code', g('pwa-naturecode'), 3);
-    irLV(15, 7, 'Cause code', g('pwa-causecode'), 6);
-    irLV(16, 1, 'Occurrence', g('pwa-occurrence'), 3);
-    irLV(16, 7, 'Time period', g('pwa-timeperiod'), 6);
-    irLV(17, 1, 'Road Condition', g('pwa-road'), 3);
-    irLV(17, 7, 'Speed Range', g('pwa-speed'), 6);
-    irLV(18, 1, 'DTC', g('pwa-dtc'), 11);
-    irLV(19, 1, 'Subject', g('pwa-subject'), 11);
-    [15,16,17,18,19].forEach(r => ws3.getRow(r).height = 18);
+    // Row 7: Fuel Type, Engine Number, Delivery Date
+    sc('A7','Fuel Type',{size:9});
+    sc('C7',g('pwa-fuel'),{bold:true,size:9,font:AFONT,color:'FF808080'});
+    sc('E7','Engine Number',{font:AFONT,size:9,color:'FF808080'});
+    sc('G7',g('pwa-engno'),{bold:true,size:9});
+    sc('J7','Delivery Date',{size:9});
+    const ddCell = ws3.getCell('L7');
+    ddCell.value = g('pwa-delivdate') ? new Date(g('pwa-delivdate')) : '';
+    ddCell.font  = {name:OFONT, size:9, bold:true};
+    ddCell.alignment = {horizontal:'left'};
+    if (g('pwa-delivdate')) ddCell.numFmt = 'dd-mmm-yy';
 
-    // Narrative sections
-    const addNarrative = (rowNum, heading, content) => {
-      ws3.mergeCells(`D${rowNum}:M${rowNum}`);
-      const h = ws3.getCell(`D${rowNum}`);
-      h.value = heading; h.font = {bold:true, size:10, color:{argb:'FF002C5F'}};
-      ws3.getRow(rowNum).height = 18;
-      ws3.mergeCells(`D${rowNum+1}:M${rowNum+1}`);
-      const v = ws3.getCell(`D${rowNum+1}`);
-      v.value = content; v.font = {size:10}; v.alignment = {wrapText:true, vertical:'top'};
-      ws3.getRow(rowNum+1).height = 40;
-    };
+    // Row 8: T/M Type, T/M Number, Production Date
+    sc('A8','T/M Type',{size:9});
+    sc('C8',g('pwa-tmtype'),{bold:true,size:10});
+    sc('E8','T/M Number',{size:9});
+    sc('G8',g('pwa-tmno'),{bold:true,size:9});
+    sc('J8','Production Date',{size:9});
+    sc('L8',g('pwa-proddate'),{bold:true,size:9});
 
-    addNarrative(20, '(1)  Introduction (Reason for Reporting)', g('pwa-intro'));
-    addNarrative(22, '(2)  Detailed Symptom & condition', g('pwa-symptom'));
-    addNarrative(24, '(3)  Investigation Result & Possible Cause', g('pwa-investigation'));
-    addNarrative(26, '(4)  Corrective action & Result', g('pwa-action'));
-    addNarrative(28, '(5) Comment', g('pwa-comment'));
+    // Row 9: Displacement, Mileage, No. of Vehicle Affected
+    sc('A9','Displacement',{size:9});
+    sc('C9',g('pwa-displacement'),{bold:true,size:9});
+    sc('E9','Mileage',{size:9});
+    sc('G9',g('pwa-mileage') ? parseInt(g('pwa-mileage')) : '',{bold:true,size:9,align:{horizontal:'left'}});
+    sc('J9','No. of Vehicle Affected',{size:9});
+    sc('L9',g('pwa-vehcount') ? parseInt(g('pwa-vehcount')) : 1,{bold:true,size:9,align:{horizontal:'left'}});
 
-    // Signatories
-    ws3.getRow(31).height = 22;
-    [['Service Manager', g('pwa-sig-sm'), 1], ['Warranty Manager', g('pwa-sig-wm'), 5], ['Parts Manager', g('pwa-sig-pm'), 9], ['Service Advisor', g('pwa-sig-sa'), 12]].forEach(([title, name, col]) => {
-      ws3.getCell(31, col).value = title; ws3.getCell(31, col).font = {bold:true, size:10};
-      ws3.getCell(32, col).value = name;  ws3.getCell(32, col).font = {size:11, color:{argb:'FF002C5F'}};
+    // Row 10: Part Information section label
+    sc('A10','Part Information',{size:9});
+
+    // Row 11: Causal Part No, Part Name (black fill white text), Part Supplier
+    sc('A11','Causal Part No',{size:9});
+    sc('C11',g('pwa-cpno'),{size:9});
+    sc('E11','Part Name',{size:9});
+    const pnCell = ws3.getCell('G11');
+    pnCell.value = g('pwa-cpname');
+    pnCell.font  = {name:AFONT, size:12, color:{argb:'FFFFFFFF'}};
+    pnCell.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    pnCell.alignment = {horizontal:'left', vertical:'center', wrapText:true};
+    pnCell.border = TBDR();
+    sc('J11','Part Supplier',{size:9});
+    sc('L11',g('pwa-supplier'),{bold:true,size:9});
+
+    // Row 12: Defective Part, Part Lot No
+    sc('A12','Defective Part',{size:9});
+    sc('C12',g('pwa-defpartno'),{size:9});
+    sc('J12','Part Lot No',{size:9});
+    sc('K12',g('pwa-lotno'),{size:9});
+
+    // Row 13: Subsidiary Crop, Mail Y/N
+    sc('A13','Subsidiary Crop',{size:9});
+    sc('C13',g('pwa-subcrop'),{size:9});
+    sc('J13','Mail Y/N',{size:9});
+    sc('L13',g('pwa-mail'),{size:9});
+
+    // Row 14: Problem Occurrence Condition, EW
+    sc('A14','Problem Occurrence Condition',{size:9});
+    sc('C14',g('pwa-poc'),{size:9});
+    sc('J14','EW',{size:9});
+    sc('L14',g('pwa-ew'),{size:9});
+
+    // Row 15: Nature Code, Cause code
+    sc('A15','Nature Code',{size:9});
+    sc('C15',g('pwa-naturecode'),{bold:true,size:9,align:{wrapText:true}});
+    sc('G15','Cause code',{size:9});
+    sc('H15',g('pwa-causecode'),{size:9});
+
+    // Row 16: Occurrence, Time period
+    sc('A16','Occurrence',{size:9});
+    sc('C16',g('pwa-occurrence'),{bold:true,size:9});
+    sc('G16','Time period',{size:9});
+    sc('H16',g('pwa-timeperiod'),{size:9});
+
+    // Row 17: Road Condition, Speed Range
+    sc('A17','Road Condition',{size:9});
+    sc('C17',g('pwa-road'),{bold:true,size:9});
+    sc('G17','Speed Range',{size:9});
+    sc('H17',g('pwa-speed'),{size:9});
+
+    // Row 18: DTC
+    sc('A18','DTC',{size:9});
+    sc('C18',g('pwa-dtc'),{size:9});
+
+    // Row 19: Subject
+    sc('A19','Subject',{size:9});
+    sc('C19',g('pwa-subject'),{bold:true,size:9});
+
+    // Narrative sections — use original cell positions exactly
+    // (1) D20 heading, D21 content — D:I merged
+    ws3.mergeCells('D20:I20');
+    const n1h = ws3.getCell('D20');
+    n1h.value = '(1)  Introduction (Reason for Reporting)';
+    n1h.font  = {name:OFONT, bold:true, size:9, color:{argb:'FF000000'}};
+    n1h.alignment = {horizontal:'left', vertical:'center'};
+    n1h.border = TBDR();
+
+    ws3.mergeCells('D21:I21');
+    const n1v = ws3.getCell('D21');
+    n1v.value = g('pwa-intro');
+    n1v.font  = {name:OFONT, size:9};
+    n1v.alignment = {horizontal:'left', vertical:'center', wrapText:true};
+    n1v.border = TBDR();
+
+    // (2) D22 heading — D:I merged
+    ws3.mergeCells('D22:I22');
+    const n2h = ws3.getCell('D22');
+    n2h.value = '(2)  Detailed Symptom & condition';
+    n2h.font  = {name:OFONT, bold:true, size:9};
+    n2h.alignment = {horizontal:'center', vertical:'center', wrapText:false};
+
+    // Row 25 (large) — content for (2) Detailed Symptom
+    ws3.mergeCells('D23:I25');
+    const n2v = ws3.getCell('D23');
+    n2v.value = g('pwa-symptom');
+    n2v.font  = {name:OFONT, size:9};
+    n2v.alignment = {horizontal:'left', vertical:'top', wrapText:true};
+    n2v.border = TBDR();
+
+    // (3) D26 heading  
+    ws3.mergeCells('D26:I26');
+    const n3h = ws3.getCell('D26');
+    n3h.value = '(3)  Investigation Result & Possible Cause';
+    n3h.font  = {name:OFONT, bold:true, size:9};
+    n3h.alignment = {horizontal:'left', vertical:'center'};
+    n3h.border = TBDR();
+
+    // Row 27 (large) — content for (3)
+    ws3.mergeCells('D27:I27');
+    const n3v = ws3.getCell('D27');
+    n3v.value = g('pwa-investigation');
+    n3v.font  = {name:OFONT, size:9, color:{argb:'FF333333'}};
+    n3v.alignment = {horizontal:'left', vertical:'top', wrapText:true};
+    n3v.border = TBDR();
+
+    // (3b) D31 — merged D31:K31 (Investigation result heading)
+    ws3.mergeCells('D31:K31');
+    const n3bh = ws3.getCell('D31');
+    n3bh.value = '(3)  Investigation Result & Possible Cause';
+    n3bh.font  = {name:OFONT, bold:true, size:9};
+    n3bh.alignment = {horizontal:'left', vertical:'center'};
+    n3bh.border = TBDR();
+
+    // D32:K34 merged — content
+    ws3.mergeCells('D32:K34');
+    const n3bv = ws3.getCell('D32');
+    n3bv.value = g('pwa-investigation');
+    n3bv.font  = {name:OFONT, size:9, color:{argb:'FF333333'}};
+    n3bv.alignment = {horizontal:'center', vertical:'center', wrapText:true};
+    n3bv.border = TBDR();
+
+    // (4) D36 heading, G36 content
+    ws3.mergeCells('D36:F36');
+    const n4h = ws3.getCell('D36');
+    n4h.value = '(4)  Corrective action & Result';
+    n4h.font  = {name:OFONT, bold:true, size:9};
+    n4h.alignment = {horizontal:'left', vertical:'center'};
+    n4h.border = TBDR();
+
+    ws3.mergeCells('G36:K36');
+    const n4v = ws3.getCell('G36');
+    n4v.value = g('pwa-action');
+    n4v.font  = {name:OFONT, size:9};
+    n4v.alignment = {horizontal:'left', vertical:'center', wrapText:true};
+    n4v.border = TBDR();
+
+    // (5) D40:E41 merged heading, F40:K41 merged content
+    ws3.mergeCells('D40:E41');
+    const n5h = ws3.getCell('D40');
+    n5h.value = '(5) Comment:- ';
+    n5h.font  = {name:OFONT, bold:true, size:9};
+    n5h.alignment = {horizontal:'center', vertical:'center'};
+    n5h.border = TBDR();
+
+    ws3.mergeCells('F40:K41');
+    const n5v = ws3.getCell('F40');
+    n5v.value = g('pwa-comment');
+    n5v.font  = {name:OFONT, size:9};
+    n5v.alignment = {horizontal:'center', vertical:'center', wrapText:true};
+    n5v.border = TBDR();
+
+    // Signatories rows 43-44 — exact column positions from original
+    // Service Manager=A, Warranty Manager=E, Parts Manager=I, Service Advisor=L
+    ws3.getRow(43).height = 14.25;
+    ws3.getRow(44).height = 14.25;
+    [
+      ['A', 'Service Manager',  g('pwa-sig-sm')],
+      ['E', 'Warranty Manager', g('pwa-sig-wm')],
+      ['I', 'Parts Manager',    g('pwa-sig-pm')],
+      ['L', 'Service Advisor',  g('pwa-sig-sa')]
+    ].forEach(([col, title, name]) => {
+      const tc = ws3.getCell(`${col}43`);
+      tc.value = title;
+      tc.font  = {name:OFONT, size:9};
+      const nc = ws3.getCell(`${col}44`);
+      nc.value = name;
+      nc.font  = {name:OFONT, size:9};
     });
-    ws3.getRow(32).height = 20;
 
     // ── Sheet 4: PARTS PHOTOGRAPH ──────────────────────────────────────
     const ws4 = wb.addWorksheet('PARTS PHOTOGRAPH');
-    ws4.columns = Array(25).fill(null).map((_,i) => ({width: i < 12 ? 10 : 10}));
+    ws4.columns = Array(25).fill(null).map(() => ({width:10}));
 
-    // Section headers
+    // Row 1 headers — same as original: A1:L1 "Vehicle Details", N1:Y1 "Parts Photos"
+    ws4.getRow(1).height = 16.5;
     ws4.mergeCells('A1:L1');
-    const vpH = ws4.getCell('A1');
-    vpH.value = 'Vehicle Details'; vpH.font = {...HDR_FONT, size:11};
-    vpH.fill = HDR_FILL; vpH.alignment = HDR_ALIGN;
+    const vdH = ws4.getCell('A1');
+    vdH.value = 'Vehicle Details';
+    vdH.font  = {name:'Calibri', bold:true, size:11, color:{argb:'FFFFFFFF'}};
+    vdH.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    vdH.alignment = {horizontal:'center', vertical:'bottom'};
 
     ws4.mergeCells('N1:Y1');
     const ppH = ws4.getCell('N1');
-    ppH.value = 'Parts Photos'; ppH.font = {...HDR_FONT, size:11};
-    ppH.fill = HDR_FILL; ppH.alignment = HDR_ALIGN;
-    ws4.getRow(1).height = 24;
+    ppH.value = 'Parts Photos';
+    ppH.font  = {name:'Calibri', bold:true, size:11, color:{argb:'FFFFFFFF'}};
+    ppH.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
+    ppH.alignment = {horizontal:'center', vertical:'bottom'};
 
-    // Photo slot positions: [fromCol, fromRow, toCol, toRow]
+    // Photo slots — exact same positions as original: [fc, fr, tc, tr] (1-indexed)
     const VP_SLOTS = [[1,2,6,16],[7,2,12,16],[1,17,6,31],[7,17,12,31]];
     const PP_SLOTS = [[14,2,19,16],[20,2,25,16],[14,17,19,31],[20,17,25,31]];
 
