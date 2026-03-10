@@ -1147,6 +1147,12 @@
           </svg>Key Code Form
           <span class="nav-badge">XLS</span>
         </button>
+        <button class="nav-item" data-view="letterheads">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>Letter Heads
+        </button>
       </div>
       <div class="sb-ver">OfficeDesk v1.0 &nbsp;·&nbsp; Khanna Automart</div>
     </aside>
@@ -1193,6 +1199,18 @@
             </div>
             <div class="tool-name">Key Code Form</div>
             <div class="tool-desc">Exort multiple vehicle Key Code requests to Excel.</div>
+            <span class="tag tag-live">Active</span>
+          </div>
+
+          <div class="tool-card live" onclick="switchView('letterheads')">
+            <div class="tool-icon" style="background:var(--accent-s);color:var(--accent)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+            </div>
+            <div class="tool-name">Letter Heads</div>
+            <div class="tool-desc">Generate professional letter heads.</div>
             <span class="tag tag-live">Active</span>
           </div>
 
@@ -1448,6 +1466,11 @@ Battery OK</textarea></div>
           </button>
         </div>
       </div>
+
+      <!-- LETTER HEADS -->
+      <div class="view" id="view-letterheads">
+        <iframe src="letterhead.html" style="width:100%;height:100%;border:none;"></iframe>
+      </div>
     </main>
   </div>
   <div id="loader">
@@ -1574,7 +1597,7 @@ Battery OK</textarea></div>
         const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${vin}_${f.dcode || "DEALER"}.pptx`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toast("PPT downloaded!", "ok");
       } catch (err) { toast("Error: " + err.message, "err"); console.error(err); } finally { showLoader(false); document.getElementById("applyBtn").disabled = false; }
     }
-    function switchView(name) { document.querySelectorAll(".view").forEach(v => v.classList.remove("active")); document.querySelectorAll(".nav-item[data-view],.bnav-item[data-view]").forEach(b => b.classList.remove("active")); const view = document.getElementById("view-" + name); if (view) view.classList.add("active"); document.querySelectorAll(`[data-view="${name}"]`).forEach(b => b.classList.add("active")); const labels = { dashboard: "Dashboard", alcazar: "Alcazar Form", keycode: "Key Code Form" }; const bc = document.getElementById("bc"); if (bc) bc.textContent = labels[name] || name; }
+    function switchView(name) { document.querySelectorAll(".view").forEach(v => v.classList.remove("active")); document.querySelectorAll(".nav-item[data-view],.bnav-item[data-view]").forEach(b => b.classList.remove("active")); const view = document.getElementById("view-" + name); if (view) view.classList.add("active"); document.querySelectorAll(`[data-view="${name}"]`).forEach(b => b.classList.add("active")); const labels = { dashboard: "Dashboard", alcazar: "Alcazar Form", keycode: "Key Code Form", letterheads: "Letter Heads" }; const bc = document.getElementById("bc"); if (bc) bc.textContent = labels[name] || name; }
     function toggleTheme() { const c = document.documentElement.getAttribute("data-theme"); applyTheme(c === "light" ? "dark" : "light"); }
     function applyTheme(t) { document.documentElement.setAttribute("data-theme", t); localStorage.setItem("od-theme", t); document.getElementById("ico-moon").style.display = t === "dark" ? "none" : ""; document.getElementById("ico-sun").style.display = t === "dark" ? "" : "none"; }
     let tt; function toast(msg, type) { const icons = { ok: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>', err: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>', info: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' }; const el = document.getElementById("toast"); el.className = "show " + (type || "info"); el.innerHTML = (icons[type] || icons.info) + msg; clearTimeout(tt); tt = setTimeout(() => { el.className = ""; }, 3500); }
@@ -1808,6 +1831,13 @@ Battery OK</textarea></div>
         <path d="M7 11V7a5 5 0 0110 0v4" />
       </svg>
       Key Code
+    </button>
+    <button class="bnav-item" data-view="letterheads">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      Letter Heads
     </button>
   </nav>
 </body>
