@@ -2306,162 +2306,162 @@ async function pwaExport() {
     // Safe merge — skips if cells already part of another merge
     const MC = (ws, range) => { try { ws.mergeCells(range); } catch(e) { console.warn('mergeCells skip:', range, e.message); } };
 
-    // ── Sheet 1: PARTS REQUIRED-ESTIMATE ────────────────────────────
-    const ws1 = wb.addWorksheet('PARTS REQUIRED-ESTIMATE');
-    // Set column widths safely via getColumn
-    [[1,7.28],[2,53.28],[3,49.85],[4,16.13],[5,15.28],[6,31.7],[7,12.85],[8,11.56]]
-      .forEach(([c,w]) => { ws1.getColumn(c).width = w; });
+    // ── Sheet 1: Estimate (EXACT ORIGINAL FORMAT PRESERVED) ───────
+    const ws1 = wb.addWorksheet('Estimate');
+    
+    // EXACT Column widths from original
+    ws1.getColumn(1).width = 7.28515625;
+    ws1.getColumn(2).width = 53.28515625;
+    ws1.getColumn(3).width = 49.85546875;
+    ws1.getColumn(4).width = 16.140625;
+    ws1.getColumn(5).width = 15.28515625;
+    ws1.getColumn(6).width = 31.7109375;
 
-    // Row 2: ESTIMATE title — original: black fill, white bold Arial 20, B2 with thin border
+    // Row 2: ESTIMATE header (B2:F2 merged)
     ws1.getRow(2).height = 26.25;
-    MC(ws1,'B2:H2');
-    const e_title = ws1.getCell('B2');
-    e_title.value = 'ESTIMATE';
-    e_title.font  = {name:AFONT, bold:true, size:20, color:{argb:'FFFFFFFF'}};
-    e_title.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
-    e_title.alignment = {horizontal:'center', vertical:'middle'};
-    e_title.border = TBDR();
-    ws1.getRow(2).height = 26.25;
+    MC(ws1,'B2:F2');
+    ws1.getCell('B2').value = 'ESTIMATE';
+    ws1.getCell('B2').font = {name:'Arial', bold:true, size:20};
+    ws1.getCell('B2').alignment = {horizontal:'center', vertical:'center'};
 
-    // Row 5: PARTS label — Arial 16 bold
+    // Row 3: PARTS label
+    ws1.getRow(3).height = 20.25;
+    ws1.getCell('B3').value = 'PARTS';
+    ws1.getCell('B3').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('B3').alignment = {vertical:'center'};
+
+    // Row 4: Empty
+    ws1.getRow(4).height = 20.25;
+
+    // Rows 5-6: Table headers (merged cells: B5:B6, C5:C6, D5:D6, E5:E6, F5:F6)
     ws1.getRow(5).height = 20.25;
-    const ps_lbl = ws1.getCell('B5');
-    ps_lbl.value = 'PARTS';
-    ps_lbl.font  = {name:AFONT, bold:true, size:16};
-
-    // Rows 7-8: Table headers (merged vertically in original)
-    // ITEMS=B, PART NUMBER=C, QTY=D, RATE=E, TOTAL=F
+    ws1.getRow(6).height = 20.25;
+    MC(ws1,'B5:B6'); MC(ws1,'C5:C6'); MC(ws1,'D5:D6'); MC(ws1,'E5:E6'); MC(ws1,'F5:F6');
+    
+    const headers = {B:'ITEM NAME', C:'PART NUMBER', D:'QTY', E:'RATE', F:'TOTAL'};
     ['B','C','D','E','F'].forEach(col => {
-      MC(ws1,`${col}7:${col}8`);
+      ws1.getCell(`${col}5`).value = headers[col];
+      ws1.getCell(`${col}5`).font = {name:'Arial', bold:true, size:16};
+      ws1.getCell(`${col}5`).alignment = {horizontal:'center', vertical:'center'};
     });
-    const hdr7_vals = {B:'ITEMS', C:'PART NUMBER', D:'QTY', E:'RATE', F:'TOTAL'};
-    ['B','C','D','E','F'].forEach(col => {
-      const cell = ws1.getCell(`${col}7`);
-      cell.value = hdr7_vals[col];
-      cell.font  = {name:AFONT, bold:true, size:16};
-      cell.alignment = {horizontal:'center', vertical:'center'};
-      cell.border = TBDR();
-    });
-    ws1.getRow(7).height = 20.25;
-    ws1.getRow(8).height = 20.25;
 
-    // Parts data rows — starting row 9
-    let partsSum = 0;
+    // Parts data rows - Row 7 onwards (inject user values)
     pwaPartRows.forEach((row, idx) => {
-      const rn = 9 + idx;
+      const rn = 7 + idx;
       ws1.getRow(rn).height = 20.25;
-      const total = (parseFloat(row.qty)||1) * (parseFloat(row.rate)||0);
-      partsSum += total;
-      const vals = {B: row.desc||'', C: row.partno||'', D: parseFloat(row.qty)||1, E: parseFloat(row.rate)||0, F: total};
-      ['B','C','D','E','F'].forEach(col => {
-        const cell = ws1.getCell(`${col}${rn}`);
-        cell.value = vals[col];
-        cell.font  = {name:AFONT, bold:true, size:16};
-        cell.alignment = {horizontal:'center', vertical:'center'};
-        cell.border = TBDR();
-      });
+      
+      ws1.getCell(`B${rn}`).value = row.desc || '';
+      ws1.getCell(`B${rn}`).font = {name:'Arial', bold:false, size:12};
+      ws1.getCell(`B${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`C${rn}`).value = row.partno || '';
+      ws1.getCell(`C${rn}`).font = {name:'Arial', bold:false, size:12};
+      ws1.getCell(`C${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`D${rn}`).value = parseFloat(row.qty) || 1;
+      ws1.getCell(`D${rn}`).font = {name:'Arial', bold:false, size:12};
+      ws1.getCell(`D${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`E${rn}`).value = parseFloat(row.rate) || 0;
+      ws1.getCell(`E${rn}`).font = {name:'Arial', bold:false, size:12};
+      ws1.getCell(`E${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      // Formula for total (like F8: =+D8*E8)
+      ws1.getCell(`F${rn}`).value = {formula: `+D${rn}*E${rn}`};
+      ws1.getCell(`F${rn}`).font = {name:'Arial', bold:false, size:12};
+      ws1.getCell(`F${rn}`).alignment = {horizontal:'center', vertical:'center'};
     });
 
-    // Blank filler rows up to row 14 (original had data up to row 14)
-    for (let rn = 9 + pwaPartRows.length; rn <= 14; rn++) {
+    // Empty rows 9-19 (preserve structure)
+    for (let rn = 7 + pwaPartRows.length; rn <= 19; rn++) {
       ws1.getRow(rn).height = 20.25;
-      ['B','C','D','E','F'].forEach(col => {
-        const cell = ws1.getCell(`${col}${rn}`);
-        cell.font  = {name:AFONT, bold:true, size:16};
-        cell.alignment = {horizontal:'center', vertical:'center'};
-        cell.border = TBDR();
-      });
     }
 
-    // Row 15: TOTAL row — D15:E15 merged, F15 = sum
-    ws1.getRow(15).height = 20.25;
-    MC(ws1,'D15:E15');
-    const ptc = ws1.getCell('D15');
-    ptc.value = 'TOTAL';
-    ptc.font  = {name:AFONT, bold:true, size:16};
-    ptc.alignment = {horizontal:'center', vertical:'center'};
-    ptc.border = TBDR();
-    ws1.getCell('E15').border = {top:T(),bottom:T(),right:T()};
-    ws1.getCell('F15').value = partsSum;
-    ws1.getCell('F15').font  = {name:AFONT, bold:true, size:16};
-    ws1.getCell('F15').alignment = {horizontal:'center', vertical:'center'};
-    ws1.getCell('F15').border = TBDR();
-
-    // Row 17: Labour headers — OP CODE=B, ITEMS=C, (blank=D), LABOUR=E, (blank=F)
-    ws1.getRow(17).height = 20.25;
-    const lab17_vals = {B:'OP CODE', C:'ITEMS', E:'LABOUR'};
-    ['B','C','D','E','F'].forEach(col => {
-      const cell = ws1.getCell(`${col}17`);
-      cell.value = lab17_vals[col] || '';
-      cell.font  = {name:AFONT, bold:true, size:16};
-      cell.alignment = {horizontal:'center', vertical:'center'};
-      cell.border = TBDR();
+    // Row 20: TOTAL (D20:E20 merged)
+    ws1.getRow(20).height = 20.25;
+    MC(ws1,'D20:E20');
+    ws1.getCell('D20').value = 'TOTAL';
+    ws1.getCell('D20').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('D20').alignment = {horizontal:'center', vertical:'center'};
+    
+    // Calculate parts total
+    let partsTotal = 0;
+    pwaPartRows.forEach(row => {
+      partsTotal += (parseFloat(row.qty) || 1) * (parseFloat(row.rate) || 0);
     });
+    ws1.getCell('F20').value = partsTotal;
+    ws1.getCell('F20').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('F20').alignment = {horizontal:'center', vertical:'center'};
 
-    // Labour data rows — starting row 18
-    let labSum = 0;
+    // Row 21: Empty
+    ws1.getRow(21).height = 20.25;
+
+    // Row 22: Labour headers
+    ws1.getRow(22).height = 20.25;
+    ws1.getCell('B22').value = 'OP CODE';
+    ws1.getCell('B22').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('B22').alignment = {horizontal:'center', vertical:'center'};
+    
+    ws1.getCell('C22').value = 'ITEMS';
+    ws1.getCell('C22').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('C22').alignment = {horizontal:'center', vertical:'center'};
+    
+    ws1.getCell('D22').value = '';
+    ws1.getCell('D22').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('D22').alignment = {horizontal:'center', vertical:'center'};
+    
+    ws1.getCell('E22').value = 'LABOUR';
+    ws1.getCell('E22').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('E22').alignment = {horizontal:'center', vertical:'center'};
+    
+    ws1.getCell('F22').value = '';
+    ws1.getCell('F22').font = {name:'Arial', bold:true, size:16};
+    ws1.getCell('F22').alignment = {horizontal:'center', vertical:'center'};
+
+    // Labour data rows - Row 23 onwards (inject user values)
+    let labourTotal = 0;
     pwaLabRows.forEach((row, idx) => {
-      const rn = 18 + idx;
+      const rn = 23 + idx;
       ws1.getRow(rn).height = 18.2;
-      const total = (parseFloat(row.qty)||1) * (parseFloat(row.labour)||0);
-      labSum += total;
-      // Original: B=opcode (size11 bold color #333333), C=desc (size16 bold yellow fill), D=qty, E=labour, F=total
-      const bc = ws1.getCell(`B${rn}`);
-      bc.value = row.opcode||'';
-      bc.font  = {name:AFONT, bold:true, size:11, color:{argb:'FF333333'}};
-      bc.alignment = {horizontal:'center', vertical:'center'};
-      bc.border = TBDR();
-
-      const cc = ws1.getCell(`C${rn}`);
-      cc.value = row.desc||'';
-      cc.font  = {name:AFONT, bold:true, size:16};
-      cc.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}};
-      cc.alignment = {horizontal:'center', vertical:'center'};
-      cc.border = TBDR();
-
-      const dc = ws1.getCell(`D${rn}`);
-      dc.value = parseFloat(row.qty)||1;
-      dc.font  = {name:AFONT, bold:true, size:12};
-      dc.alignment = {horizontal:'center', vertical:'center'};
-      dc.border = TBDR();
-
-      const ec = ws1.getCell(`E${rn}`);
-      ec.value = parseFloat(row.labour)||0;
-      ec.font  = {name:AFONT, bold:true, size:12};
-      ec.alignment = {horizontal:'center', vertical:'center'};
-      ec.border = TBDR();
-
-      const fc = ws1.getCell(`F${rn}`);
-      fc.value = total;
-      fc.font  = {name:AFONT, bold:true, size:12};
-      fc.alignment = {horizontal:'center', vertical:'center'};
-      fc.border = TBDR();
+      
+      ws1.getCell(`B${rn}`).value = row.opcode || '';
+      ws1.getCell(`B${rn}`).font = {name:'Arial', bold:false, size:9};
+      ws1.getCell(`B${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`C${rn}`).value = row.desc || '';
+      ws1.getCell(`C${rn}`).font = {name:'Arial', bold:false, size:9};
+      ws1.getCell(`C${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`D${rn}`).value = parseFloat(row.qty) || 1;
+      ws1.getCell(`D${rn}`).font = {name:'Arial', bold:false, size:9};
+      ws1.getCell(`D${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      ws1.getCell(`E${rn}`).value = parseFloat(row.labour) || 0;
+      ws1.getCell(`E${rn}`).font = {name:'Arial', bold:false, size:9};
+      ws1.getCell(`E${rn}`).alignment = {horizontal:'center', vertical:'center'};
+      
+      const total = (parseFloat(row.qty) || 1) * (parseFloat(row.labour) || 0);
+      labourTotal += total;
+      ws1.getCell(`F${rn}`).value = total;
+      ws1.getCell(`F${rn}`).font = {name:'Arial', bold:false, size:9};
+      ws1.getCell(`F${rn}`).alignment = {horizontal:'center', vertical:'center'};
     });
 
-    // Blank filler lab row
-    const labEndRow = 18 + Math.max(pwaLabRows.length, 1);
-    ws1.getRow(labEndRow).height = 18.2;
-    ['B','C','D','E','F'].forEach(col => {
-      const cell = ws1.getCell(`${col}${labEndRow}`);
-      cell.font  = {name:AFONT, size:12};
-      cell.alignment = {horizontal:'center', vertical:'center'};
-      cell.border = TBDR();
-    });
+    // Empty rows 24-27 (preserve structure)
+    for (let rn = 23 + pwaLabRows.length; rn <= 27; rn++) {
+      ws1.getRow(rn).height = 18.2;
+    }
 
-    // G.TOTAL row — D:E merged with black fill white text, F = grand total same fill
-    const gtRow = labEndRow + 1;
-    ws1.getRow(gtRow).height = 20.25;
-    MC(ws1,`D${gtRow}:E${gtRow}`);
-    const gtc = ws1.getCell(`D${gtRow}`);
-    gtc.value = 'G.TOTAL ';
-    gtc.font  = {name:AFONT, bold:true, size:12, color:{argb:'FFFFFFFF'}};
-    gtc.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
-    gtc.alignment = {horizontal:'center', vertical:'center'};
-    const gtf = ws1.getCell(`F${gtRow}`);
-    gtf.value = partsSum + labSum;
-    gtf.font  = {name:AFONT, bold:true, size:12, color:{argb:'FFFFFFFF'}};
-    gtf.fill  = {type:'pattern', pattern:'solid', fgColor:{argb:'FF000000'}};
-    gtf.alignment = {horizontal:'center', vertical:'center'};
+    // Row 28: G.TOTAL (D28:E28 merged)
+    ws1.getRow(28).height = 20.25;
+    MC(ws1,'D28:E28');
+    ws1.getCell('D28').value = 'G.TOTAL ';
+    ws1.getCell('D28').font = {name:'Arial', bold:true, size:12};
+    ws1.getCell('D28').alignment = {horizontal:'center', vertical:'center'};
+    
+    ws1.getCell('F28').value = partsTotal + labourTotal;
+    ws1.getCell('F28').font = {name:'Arial', bold:true, size:12};
+    ws1.getCell('F28').alignment = {horizontal:'center', vertical:'center'};
 
     // ── Sheet 2: SERVICE HISTORY ──────────────────────────────────────
     const ws2 = wb.addWorksheet('SERVICE HISTORY');
