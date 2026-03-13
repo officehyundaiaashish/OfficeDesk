@@ -1649,6 +1649,18 @@ self.addEventListener('notificationclick', e => {
       .backup-grid { grid-template-columns: 1fr; }
     }
 
+    /* ── Profile Badge & Modal ── */
+    .user-badge { display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: all var(--tr); position: relative; overflow: hidden; margin-right: 8px; }
+    .user-badge::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: skewX(-15deg); animation: badgeShine 3s infinite; pointer-events: none; }
+    [data-theme=dark] .user-badge::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); }
+    @keyframes badgeShine { 0% { left: -100%; } 20%, 100% { left: 200%; } }
+    .user-badge:hover { border-color: var(--accent); background: var(--surface); }
+    .ub-av { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: bold; object-fit: cover; }
+    .ub-nm { font-size: 12px; font-weight: 600; color: var(--text); }
+    
+    .prof-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 16px; z-index: 1000; width: 320px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+    .prof-modal.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+
   </style>
 </head>
 
@@ -1889,7 +1901,7 @@ self.addEventListener('notificationclick', e => {
           <div class="backup-card">
             <div class="backup-info">
               <h3>Cloud Sync</h3>
-              <p>Securely sync data to Firebase. Only authorized dealer accounts can login and access this.</p>
+              <p>Securely sync data to Google. Only authorized accounts can login and access this.</p>
             </div>
             <div class="backup-btns" style="flex-direction: column;">
               <button id="googleSignInBtn" class="btn btn-g" onclick="googleSignIn()" style="width: 100%; justify-content: center; border-color: var(--accent); color: var(--accent);">
