@@ -1681,6 +1681,12 @@ self.addEventListener('notificationclick', e => {
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg><b id="bc">Dashboard</b></div>
     <div class="hdr-right">
+      <div class="user-badge" onclick="openProfile()">
+        <img id="ub-img" class="ub-av" style="display:none">
+        <div id="ub-txt" class="ub-av">A</div>
+        <span id="ub-name" class="ub-nm">Aashish</span>
+      </div>
+
       <button class="tbtn" id="themeBtn" title="Toggle theme">
         <svg id="ico-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2">
@@ -1977,6 +1983,26 @@ self.addEventListener('notificationclick', e => {
   </div>
   <div id="toast"></div>
   <div id="finputs"></div>
+  <div class="drawer-overlay" id="profOverlay" onclick="closeProfile()"></div>
+  <div class="prof-modal" id="profModal">
+    <div class="card-title">Profile Settings</div>
+    <div class="field" style="margin-bottom:16px">
+      <label>Nickname</label>
+      <input type="text" id="p-nameInput" placeholder="E.g. Aashish">
+    </div>
+    <div class="field" style="margin-bottom:20px; align-items:center;">
+      <label style="align-self:flex-start">Avatar (Optional)</label>
+      <div class="pslot" onclick="document.getElementById('p-avInput').click()" style="width:80px; height:80px; border-radius:50%; margin-top:8px">
+        <img id="p-avPreview" style="display:none; border-radius:50%; width:100%; height:100%; object-fit:cover;">
+        <div class="slot-ico" id="p-avIcon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+      </div>
+      <input type="file" id="p-avInput" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-p" style="flex:1; justify-content:center" onclick="saveProfile()">Save</button>
+      <button class="btn btn-g" style="flex:1; justify-content:center" onclick="closeProfile()">Cancel</button>
+    </div>
+  </div>
   <script>
     // Navigation and view switching
     document.addEventListener("DOMContentLoaded", () => {
@@ -2050,16 +2076,93 @@ self.addEventListener('notificationclick', e => {
     }
 
     // ── Backup / Restore All ──// ── Backup / Restore Logic (Local & Cloud) ──
-    const IFRAME_IDS = ['alcazar-iframe', 'keycode-iframe', 'letterheads-iframe', 'pwareg-iframe', 'etm-iframe', 'agm-iframe'];
-    const TOOL_NAMES = { 'alcazar-iframe': 'alcazar', 'keycode-iframe': 'keycode', 'letterheads-iframe': 'letterheads', 'pwareg-iframe': 'pwareg', 'etm-iframe': 'etm', 'agm-iframe': 'agm' };
+    // ── Profile Logic ──
+    let currentProfile = JSON.parse(localStorage.getItem('od-profile')) || { name: 'Aashish', avatar: '' };
+    
+    function renderProfile() {
+      document.getElementById('ub-name').innerText = currentProfile.name || 'User';
+      if (currentProfile.avatar) {
+        document.getElementById('ub-img').src = currentProfile.avatar;
+        document.getElementById('ub-img').style.display = 'block';
+        document.getElementById('ub-txt').style.display = 'none';
+      } else {
+        document.getElementById('ub-img').style.display = 'none';
+        document.getElementById('ub-txt').style.display = 'flex';
+        document.getElementById('ub-txt').innerText = (currentProfile.name || 'A').charAt(0).toUpperCase();
+      }
+    }
+    renderProfile();
 
+    function openProfile() {
+      document.getElementById('p-nameInput').value = currentProfile.name || '';
+      if (currentProfile.avatar) {
+        document.getElementById('p-avPreview').src = currentProfile.avatar;
+        document.getElementById('p-avPreview').style.display = 'block';
+        document.getElementById('p-avIcon').style.display = 'none';
+      } else {
+        document.getElementById('p-avPreview').style.display = 'none';
+        document.getElementById('p-avIcon').style.display = 'flex';
+      }
+      document.getElementById('profOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('profOverlay').classList.add('visible'), 10);
+      document.getElementById('profModal').classList.add('show');
+    }
+
+    function closeProfile() {
+      document.getElementById('profOverlay').classList.remove('visible');
+      document.getElementById('profModal').classList.remove('show');
+      setTimeout(() => document.getElementById('profOverlay').classList.remove('open'), 300);
+    }
+
+    function previewAvatar(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('p-avPreview').src = ev.target.result;
+        document.getElementById('p-avPreview').style.display = 'block';
+        document.getElementById('p-avIcon').style.display = 'none';
+      };
+      reader.readAsDataURL(file); // Saves as base64 so it can be backed up offline!
+    }
+
+    function saveProfile() {
+      const n = document.getElementById('p-nameInput').value.trim();
+      const a = document.getElementById('p-avPreview').src;
+      currentProfile.name = n || 'User';
+      currentProfile.avatar = document.getElementById('p-avPreview').style.display === 'block' ? a : '';
+      localStorage.setItem('od-profile', JSON.stringify(currentProfile));
+      renderProfile();
+      closeProfile();
+      toast('Profile updated', 'ok');
+    }
+
+    // ── Global Master Restore (Restores IFrames AND Profile) ──
+    window.masterRestore = function(data) {
+      if (data['user_profile']) {
+        currentProfile = data['user_profile'];
+        localStorage.setItem('od-profile', JSON.stringify(currentProfile));
+        renderProfile();
+      }
+      const IFRAME_IDS = ['alcazar-iframe', 'keycode-iframe', 'letterheads-iframe', 'pwareg-iframe', 'etm-iframe', 'agm-iframe'];
+      const TOOL_NAMES = { 'alcazar-iframe': 'alcazar', 'keycode-iframe': 'keycode', 'letterheads-iframe': 'letterheads', 'pwareg-iframe': 'pwareg', 'etm-iframe': 'etm', 'agm-iframe': 'agm' };
+      IFRAME_IDS.forEach(id => {
+        const iframe = document.getElementById(id);
+        const tool = TOOL_NAMES[id];
+        if (iframe && iframe.contentWindow && data[tool]) {
+          iframe.contentWindow.postMessage({ type: 'restore-data', tool: tool, data: data[tool] }, '*');
+        }
+      });
+    };
+
+    // ── Backup / Restore Logic (Local & Cloud) ──
+    const IFRAME_IDS = ['alcazar-iframe', 'keycode-iframe', 'letterheads-iframe', 'pwareg-iframe', 'etm-iframe', 'agm-iframe'];
     let currentBackupTarget = 'local';
 
     function startBackup(target) {
       currentBackupTarget = target;
       const collected = {};
       let pending = IFRAME_IDS.length;
-
       const timeout = setTimeout(() => routeBackup(collected), 3000);
 
       const handler = (e) => {
@@ -2074,16 +2177,11 @@ self.addEventListener('notificationclick', e => {
         }
       };
       window.addEventListener('message', handler);
-
       IFRAME_IDS.forEach(id => {
         const iframe = document.getElementById(id);
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage({ type: 'backup-request' }, '*');
-        } else {
-          pending--;
-        }
+        if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage({ type: 'backup-request' }, '*');
+        else pending--;
       });
-
       if (pending <= 0) {
         clearTimeout(timeout);
         window.removeEventListener('message', handler);
@@ -2092,6 +2190,9 @@ self.addEventListener('notificationclick', e => {
     }
 
     function routeBackup(data) {
+      // Magically injects profile data into the final backup file!
+      data['user_profile'] = currentProfile;
+
       if (currentBackupTarget === 'cloud') {
         if (window.cloudBackup) window.cloudBackup(data);
         else toast('Cloud sync is loading...', 'info');
@@ -2101,17 +2202,14 @@ self.addEventListener('notificationclick', e => {
     }
 
     function finishLocalBackup(data) {
-      const payload = { version: 1, timestamp: new Date().toISOString(), data };
+      const payload = { version: 2, timestamp: new Date().toISOString(), data };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      const a = document.createElement('a'); a.href = url;
       const d = new Date();
       const stamp = d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2);
       a.download = `officedesk_backup_${stamp}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       toast('Local backup downloaded', 'ok');
     }
@@ -2123,19 +2221,9 @@ self.addEventListener('notificationclick', e => {
       reader.onload = (e) => {
         try {
           const payload = JSON.parse(e.target.result);
-          if (!payload.version || !payload.data) {
-            toast('Invalid backup file', 'err');
-            return;
-          }
-          const { data } = payload;
-          IFRAME_IDS.forEach(id => {
-            const tool = TOOL_NAMES[id];
-            const iframe = document.getElementById(id);
-            if (iframe && iframe.contentWindow && data[tool]) {
-              iframe.contentWindow.postMessage({ type: 'restore-data', tool, data: data[tool] }, '*');
-            }
-          });
-          toast('Data restored locally', 'ok');
+          if (!payload.data) throw new Error('Invalid');
+          window.masterRestore(payload.data);
+          toast('Data & Profile restored locally', 'ok');
         } catch (err) {
           toast('Error reading backup file', 'err');
         }
