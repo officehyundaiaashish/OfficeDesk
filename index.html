@@ -1684,7 +1684,7 @@ self.addEventListener('notificationclick', e => {
       <div class="user-badge" onclick="openProfile()">
         <img id="ub-img" class="ub-av" style="display:none">
         <div id="ub-txt" class="ub-av">A</div>
-        <span id="ub-name" class="ub-nm">Aashish</span>
+        <span id="ub-name" class="ub-nm">User</span>
       </div>
 
       <button class="tbtn" id="themeBtn" title="Toggle theme">
@@ -1984,6 +1984,7 @@ self.addEventListener('notificationclick', e => {
   <div id="toast"></div>
   <div id="finputs"></div>
   <div class="drawer-overlay" id="profOverlay" onclick="closeProfile()"></div>
+  <div class="drawer-overlay" id="profOverlay" onclick="closeProfile()"></div>
   <div class="prof-modal" id="profModal">
     <div class="card-title">Profile Settings</div>
     <div class="field" style="margin-bottom:16px">
@@ -2001,6 +2002,12 @@ self.addEventListener('notificationclick', e => {
     <div class="btn-row">
       <button class="btn btn-p" style="flex:1; justify-content:center" onclick="saveProfile()">Save</button>
       <button class="btn btn-g" style="flex:1; justify-content:center" onclick="closeProfile()">Cancel</button>
+    </div>
+    <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; display: none;" id="p-signOutDiv">
+      <button class="btn btn-g" style="width: 100%; justify-content:center; color: #e05252; border-color: #e05252;" onclick="window.googleSignOut()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out of Cloud
+      </button>
     </div>
   </div>
   <script>
@@ -2443,10 +2450,9 @@ self.addEventListener('notificationclick', e => {
 <script src="./ppt-template.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // Your actual configuration
     const firebaseConfig = {
       apiKey: "AIzaSyApVZ0wN8eIZKO9ys7CkpVHwBZ1P7q6ztE",
       authDomain: "officedesk-6c56e.firebaseapp.com",
@@ -2463,23 +2469,51 @@ self.addEventListener('notificationclick', e => {
 
     const allowedEmails = ["office.hyundai.aashish@gmail.com", "giriaashish02@gmail.com"];
 
-    // Function to visually activate buttons when signed in
-    function enableCloudButtons() {
-      document.getElementById('googleSignInText').innerText = "Signed In ✓";
+    function enableCloudButtons(email) {
+      // Show Email in button
+      document.getElementById('googleSignInText').innerText = email;
       document.getElementById('googleSignInBtn').style.borderColor = 'var(--border)';
       document.getElementById('googleSignInBtn').style.color = 'var(--text2)';
+      
+      // Enable backup/restore buttons
       document.getElementById('cloudBackupBtn').disabled = false;
       document.getElementById('cloudBackupBtn').style.opacity = '1';
       document.getElementById('cloudBackupBtn').style.cursor = 'pointer';
+      
       document.getElementById('cloudRestoreBtn').disabled = false;
       document.getElementById('cloudRestoreBtn').style.opacity = '1';
       document.getElementById('cloudRestoreBtn').style.cursor = 'pointer';
+
+      // Show Sign out button inside profile modal
+      const signOutDiv = document.getElementById('p-signOutDiv');
+      if (signOutDiv) signOutDiv.style.display = 'block';
     }
 
-    // Auto-check if user is already signed in on page refresh
+    function disableCloudButtons() {
+      // Reset button text
+      document.getElementById('googleSignInText').innerText = "Sign in with Google";
+      document.getElementById('googleSignInBtn').style.borderColor = '';
+      document.getElementById('googleSignInBtn').style.color = '';
+      
+      // Disable backup/restore buttons
+      document.getElementById('cloudBackupBtn').disabled = true;
+      document.getElementById('cloudBackupBtn').style.opacity = '0.4';
+      document.getElementById('cloudBackupBtn').style.cursor = 'not-allowed';
+      
+      document.getElementById('cloudRestoreBtn').disabled = true;
+      document.getElementById('cloudRestoreBtn').style.opacity = '0.4';
+      document.getElementById('cloudRestoreBtn').style.cursor = 'not-allowed';
+
+      // Hide Sign out button inside profile modal
+      const signOutDiv = document.getElementById('p-signOutDiv');
+      if (signOutDiv) signOutDiv.style.display = 'none';
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (user && allowedEmails.includes(user.email)) {
-        enableCloudButtons();
+        enableCloudButtons(user.email);
+      } else {
+        disableCloudButtons();
       }
     });
 
@@ -2492,15 +2526,31 @@ self.addEventListener('notificationclick', e => {
         }
         if (!allowedEmails.includes(user.email)) {
           toast("Unauthorized Email ID. Access Denied.", "err");
-          await auth.signOut();
+          await signOut(auth);
         } else {
-          toast("Signed in as " + user.email, "ok");
-          enableCloudButtons();
+          toast("Signed in successfully", "ok");
+          enableCloudButtons(user.email);
         }
       } catch (e) {
         toast("Sign in failed. Try again.", "err");
       }
       showLoader(false);
+    };
+
+    // Sign out function with confirm
+    window.googleSignOut = async function() {
+      if (confirm("Are you sure you want to sign out from Cloud Sync?")) {
+        showLoader(true);
+        try {
+          await signOut(auth);
+          toast("Signed out successfully", "info");
+          disableCloudButtons();
+          if (typeof closeProfile === "function") closeProfile();
+        } catch (e) {
+          toast("Error signing out", "err");
+        }
+        showLoader(false);
+      }
     };
 
     window.cloudBackup = async function(data) {
@@ -2511,7 +2561,7 @@ self.addEventListener('notificationclick', e => {
         await setDoc(doc(db, "backups", "master_database"), { 
           data: data, timestamp: new Date().toISOString(), lastUpdatedBy: user.email 
         });
-        toast("Saved securely to Google Cloud", "ok");
+        toast("Saved securely to Firebase Cloud", "ok");
       } catch (e) {
         toast("Database Access Denied", "err");
       }
@@ -2527,17 +2577,11 @@ self.addEventListener('notificationclick', e => {
         const docSnap = await getDoc(doc(db, "backups", "master_database"));
         if (docSnap.exists()) {
           const cloudData = docSnap.data().data;
-          const IFRAME_IDS = ['alcazar-iframe', 'keycode-iframe', 'letterheads-iframe', 'pwareg-iframe', 'etm-iframe', 'agm-iframe'];
-          const TOOL_NAMES = { 'alcazar-iframe': 'alcazar', 'keycode-iframe': 'keycode', 'letterheads-iframe': 'letterheads', 'pwareg-iframe': 'pwareg', 'etm-iframe': 'etm', 'agm-iframe': 'agm' };
-          
-          IFRAME_IDS.forEach(id => {
-            const iframe = document.getElementById(id);
-            const tool = TOOL_NAMES[id];
-            if (iframe && iframe.contentWindow && cloudData[tool]) {
-              iframe.contentWindow.postMessage({ type: 'restore-data', tool: tool, data: cloudData[tool] }, '*');
-            }
-          });
-          toast("Restored from Google Cloud", "ok");
+          // Use masterRestore so it also restores Profile Avatar & Nickname!
+          if (window.masterRestore) {
+            window.masterRestore(cloudData);
+          }
+          toast("Restored from Firebase Cloud", "ok");
         } else {
           toast("No cloud backup found yet", "info");
         }
@@ -2546,6 +2590,7 @@ self.addEventListener('notificationclick', e => {
       }
       showLoader(false);
     };
+  </script>
   </script>
 </body>
 
