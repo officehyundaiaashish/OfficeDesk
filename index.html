@@ -93,9 +93,9 @@
 
     // ── 2. MANIFEST — Blob inject ───────────────────────────────────────
     const manifest = {
-      name: 'OfficeDesk — Utility Suite',
+      name: 'OfficeDesk',
       short_name: 'OfficeDesk',
-      description: 'Dealership utility suite for Khanna Automart.',
+      description: 'Dealership Utility.',
       start_url: './index.html',
       scope: './',
       display: 'standalone',
@@ -1952,7 +1952,7 @@ self.addEventListener('notificationclick', e => {
       document.querySelectorAll(`.nav-item[data-view="${v}"],.bnav-item[data-view="${v}"]`).forEach(el => el.classList.add("active"));
       document.querySelectorAll(`.drawer-item[data-view="${v}"]`).forEach(el => el.classList.add("active"));
       const labels = { dashboard: "Dashboard", alcazar: "Alcazar Form", keycode: "Key Code Form", letterheads: "Letter Heads", pwareg: "PWA Regular", etm: "ETM Form", agm: "AGM Form" }; 
-      document.title = "OfficeDesk — " + (labels[v] || "Utility Suite");
+      document.title = "OfficeDesk : " + (labels[v] || "Utility Suite");
     }
 
     function toggleTheme() {
