@@ -2411,7 +2411,7 @@ self.addEventListener('notificationclick', e => {
         await setDoc(doc(db, "backups", "master_database"), { 
           data: data, timestamp: new Date().toISOString(), lastUpdatedBy: user.email 
         });
-        toast("Saved securely to Firebase Cloud", "ok");
+        toast("Saved securely to Google Cloud", "ok");
       } catch (e) {
         toast("Database Access Denied", "err");
       }
@@ -2437,7 +2437,7 @@ self.addEventListener('notificationclick', e => {
               iframe.contentWindow.postMessage({ type: 'restore-data', tool: tool, data: cloudData[tool] }, '*');
             }
           });
-          toast("Restored from Firebase Cloud", "ok");
+          toast("Restored from Google Cloud", "ok");
         } else {
           toast("No cloud backup found yet", "info");
         }
